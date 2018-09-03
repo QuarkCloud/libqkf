@@ -177,6 +177,10 @@
 				RelativePath=".\qkf_init.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\rbtree.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -184,11 +188,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\include\qkf\event.h"
+				RelativePath="..\include\qkf\compile.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\qkf\qkf_compile.h"
+				RelativePath="..\include\qkf\notify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\rbtree.h"
 				>
 			</File>
 			<File

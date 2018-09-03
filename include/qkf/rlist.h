@@ -2,7 +2,7 @@
 #ifndef __QKF_RLIST_H
 #define __QKF_RLIST_H 1
 
-#include <qkf_compile.h>
+#include <qkf/compile.h>
 #include <stdint.h>
 
 __BEGIN_DECLS
