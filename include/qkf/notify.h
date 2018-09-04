@@ -4,7 +4,6 @@
 
 #include "qkf/compile.h"
 #include "qkf/rlist.h"
-#include "qkf/rbtree.h"
 
 #include <stdint.h>
 #include <pthread.h>
@@ -19,58 +18,62 @@ typedef struct __st_qkf_notify_node qkf_notify_node_t ;
 typedef struct __st_qkf_notifier qkf_notifier_t ;
 typedef struct __st_qkf_watcher qkf_watcher_t ;
 typedef struct __st_qkf_notify_manager qkf_notify_manager_t ;
-typedef struct __st_qkf_notify_allocator qkf_notify_allocator_t ;
 
 struct __st_qkf_notify_node{
-    rlist_t         notifier_link ;          //事件源链表
-    qkf_notifier_t *notifier ;
-    rlist_t         watcher_link ;           //观察者链表
-    qkf_watcher_t * watcher ;
-} ;
+    rlist_t             nlink ;          //事件源链表
+    rlist_t             wlink ;          //观察者链表
+    rlist_t             ready ;          //将该节点关节到watcher的ready链表
 
-struct __st_qkf_notify_allocator{
-    void * root ;
-    qkf_notify_node_t * alloc() ;
-    void free(qkf_notify_node_t * node) ;
+    qkf_notifier_t*     notifier ;
+    qkf_watcher_t*      watcher ; 
 } ;
 
 struct __st_qkf_notifier{
-    rlist_t     link ;
-    uint32_t    id ;
+    rlist_t             link ;
+    
+    pthread_spinlock_t  locker ;
+    rlist_t             nodes ;
 
-    pthread_spinlock_t watcher_locker ;
-    rlist_t     watchers ;
-    rb_tree_t   watcher_map ;
-
-    qkf_notify_allocator_t * allocator ;        //节点分配
+    qkf_notify_manager_t * owner ;
 } ;
 
 struct __st_qkf_watcher{
-    rlist_t     link ;
-    uint32_t    id ;
-    rlist_t     notifiers ;
+    rlist_t             link ;
+
+    pthread_spinlock_t  locker ;
+    rlist_t             ready ;
+    rlist_t             nodes ;
+
+    qkf_notify_manager_t * owner ;
 } ;
 
 struct __st_qkf_notify_manager{
-    rlist_t     notifier_list ;
-    rb_tree_t   notifier_map ;
+    rlist_t             notifiers ;
 
-    rlist_t     watcher_list ;
-    rb_tree_t   watcher_map ;
+    pthread_spinlock_t  locker ;
+    rlist_t             watchers ;
+    rlist_t             readies ;       //用来挂接准备好的watcher
 } ;
 
-QKFAPI void qkf_notify_node_init(qkf_notify_node_t * node) ;
+QKFAPI bool qkf_notify_node_init(qkf_notify_node_t * node) ;
 QKFAPI void qkf_notify_node_final(qkf_notify_node_t * node) ;
 
-QKFAPI void qkf_notify_allocator_init(qkf_notify_allocator_t * allocator) ;
-QKFAPI void qkf_notify_allocator_final(qkf_notify_allocator_t * allocator) ;
-QKFAPI qkf_notify_node_t * qkf_notify_alloc(qkf_notify_allocator_t * allocator) ;
-QKFAPI void qkf_notify_free(qkf_notify_allocator_t * allocator , qkf_notify_node_t * node) ;
 
-QKFAPI void qkf_notifier_init(qkf_notifier_t * notifier) ;
+QKFAPI bool qkf_notifier_init(qkf_notifier_t * notifier) ;
 QKFAPI void qkf_notifier_final(qkf_notifier_t * notifier) ;
-QKFAPI bool qkf_notifier_add_watcher(qkf_notifier_t * notifier , qkf_watcher_t * watcher) ;
-QKFAPI void qkf_notifier_del_watcher(qkf_notifier_t * notifier , qkf_watcher_t * watcher) ;
+
+QKFAPI bool qkf_watcher_init(qkf_watcher_t * watcher) ;
+QKFAPI void qkf_watcher_final(qkf_watcher_t * watcher) ;
+
+QKFAPI bool qkf_notify_manager_init(qkf_notify_manager_t * manager) ;
+QKFAPI void qkf_notify_manager_final(qkf_notify_manager_t * manager) ;
+
+QKFAPI bool qkf_notify_add_notifier(qkf_notify_manager_t * manager , qkf_notifier_t * notifier) ;
+QKFAPI void qkf_notify_del_notifier(qkf_notify_manager_t * manager , qkf_notifier_t * notifier) ;
+
+QKFAPI bool qkf_notify_add_watcher(qkf_notify_manager_t * manager , qkf_watcher_t * watcher) ;
+QKFAPI void qkf_notify_del_watcher(qkf_notify_manager_t * manager , qkf_watcher_t * watcher) ;
+
 
 __END_DECLS
 
