@@ -46,6 +46,10 @@ struct __st_qkf_watcher{
     rlist_t             readies ;
     rlist_t             nodes ;
 
+    //保存notifier和notify_node的对应关系
+    pthread_mutex_t     map_guard ;
+    rb_tree_t           nodes_map ;     
+
     qkf_notify_manager_t * owner ;
 } ;
 
@@ -54,7 +58,8 @@ struct __st_qkf_notify_manager{
     rlist_t             notifiers ;
     rlist_t             watchers ;
 
-    pthread_spinlock_t  rlocker ;
+    pthread_mutex_t     rmutex ;
+    pthread_cond_t      rcond ;
     rlist_t             readies ;       //用来挂接准备好的watcher
 } ;
 
@@ -76,6 +81,7 @@ QKFAPI bool qkf_watcher_unlink(qkf_watcher_t * watcher , qkf_notify_node_t * nod
 
 QKFAPI bool qkf_watcher_add(qkf_watcher_t * watcher , qkf_notifier_t * notifier) ;
 QKFAPI bool qkf_watcher_del(qkf_watcher_t * watcher , qkf_notifier_t * notifier) ;
+QKFAPI int qkf_watcher_readies(qkf_watcher_t * watcher , qkf_notifier_t ** notifiers , int max_notifiers) ;
 
 QKFAPI bool qkf_notify_manager_init(qkf_notify_manager_t * manager) ;
 QKFAPI void qkf_notify_manager_final(qkf_notify_manager_t * manager) ;
@@ -89,7 +95,8 @@ QKFAPI void qkf_notify_del_watcher(qkf_notify_manager_t * manager , qkf_watcher_
 QKFAPI void qkf_notify_ready_watcher(qkf_notify_manager_t * manager , qkf_watcher_t * watcher) ;
 QKFAPI void qkf_notify_unready_watcher(qkf_notify_manager_t * manager , qkf_watcher_t * watcher) ;
 
-QKFAPI int qkf_notify_wait(qkf_notify_manager_t * manager , qkf_watcher_t ** watchers , int count , int timeout) ;
+//timeout毫秒级别
+QKFAPI int qkf_notify_wait(qkf_notify_manager_t * manager , qkf_watcher_t ** watchers , int max_watchers , int timeout) ;
 
 
 __END_DECLS
