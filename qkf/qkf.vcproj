@@ -175,11 +175,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\malloc.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\notify.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\qkf_init.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\queue.cpp"
 				>
 			</File>
 			<File
@@ -197,7 +205,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\qkf\malloc.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\qkf\notify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\queue.h"
 				>
 			</File>
 			<File
