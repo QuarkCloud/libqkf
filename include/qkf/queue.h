@@ -8,10 +8,12 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <sys/time.h>
 
 __BEGIN_DECLS
 
 typedef struct __st_qkf_queue_node{
+    int64_t         timestamp ;
     size_t          size ;
     char            data[4] ;
 } qkf_queue_node_t;
@@ -45,7 +47,10 @@ QKFAPI bool qkf_queue_init(qkf_queue_t * queue , size_t capacity) ;
 QKFAPI void qkf_queue_final(qkf_queue_t * queue) ;
 QKFAPI void qkf_queue_clear(qkf_queue_t * queue) ;
 
+//timeout的延迟以毫秒为精度，更高的精度基本没有什么意义。
+QKFAPI bool qkf_queue_try_push(qkf_queue_t * queue , qkf_queue_node_t * node) ;
 QKFAPI bool qkf_queue_push(qkf_queue_t * queue , qkf_queue_node_t * node , int timeout) ;
+QKFAPI bool qkf_queue_try_pop(qkf_queue_t * queue , qkf_queue_node_t ** node) ;
 QKFAPI int qkf_queue_pop(qkf_queue_t * queue , qkf_queue_node_t ** nodes , int max_nodes , int timeout) ;
 QKFAPI int qkf_queue_browse(qkf_queue_t * queue , qkf_queue_node_t ** nodes , int max_nodes) ;
 
