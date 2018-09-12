@@ -175,6 +175,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\expr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\hash.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\malloc.cpp"
 				>
 			</File>
@@ -195,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sync.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\time.cpp"
 				>
 			</File>
@@ -206,6 +218,14 @@
 			>
 			<File
 				RelativePath="..\include\qkf\compile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\expr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\hash.h"
 				>
 			</File>
 			<File
@@ -226,6 +246,10 @@
 			</File>
 			<File
 				RelativePath="..\include\qkf\rlist.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\sync.h"
 				>
 			</File>
 			<File
