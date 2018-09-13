@@ -14,10 +14,10 @@ bool qkf_expr_node_init(qkf_expr_node_t * node)
     return true ;
 }
 
-void qkf_expr_node_free(qkf_expr_node_t * node) 
+bool qkf_expr_node_free(qkf_expr_node_t * node) 
 {
     if(node == NULL)
-        return ;
+        return false;
 
     if(node->left != NULL)
     {
@@ -36,6 +36,7 @@ void qkf_expr_node_free(qkf_expr_node_t * node)
         ::qkf_free(kDefaultMMgr , right) ;
         node->right = NULL ;
     }
+    return true ;
 }
 
 void qkf_expr_node_final(qkf_expr_node_t * node) 
@@ -89,57 +90,130 @@ bool qkf_arith_node_free(qkf_expr_node_t * node)
     qkf_arith_node_t * arith = (qkf_arith_node_t *) node ;
     if(arith->name != NULL)
     {
-        ::qkf_free(arith->name) ;
+        ::qkf_free(kDefaultMMgr , arith->name) ;
         arith->name = NULL ;
     }
     if(arith->opera != NULL)
     {
-        ::qkf_free(arith->opera) ;
+        ::qkf_free(kDefaultMMgr , arith->opera) ;
         arith->opera = NULL ;
     }
     if(arith->value != NULL)
     {
-        ::qkf_free(arith->value) ;
+        ::qkf_free(kDefaultMMgr , arith->value) ;
         arith->value = NULL ;
     }
     return true ;
 }
 
-int  qkf_arith_node_scan(qkf_expr_node_t * node , const char * str , int len) 
+int qkf_arith_node_scan(qkf_expr_node_t * node , const char * str , int slen) 
 {
+    if(node == NULL || str == NULL || slen <= 0 || node->type != kExprNodeArith)
+        return 0 ;
 
+    //1¡¢É¨ÃèÃû×Ö
+    const char * name = NULL ;
+    int nlen = 0 , offset = 0 ;
+
+    int nsize = ::qkf_expr_scan_name(str , slen , name , nlen) ;
+    if(nsize == 0)
+        return 0 ;
+    offset += nsize ;
+
+    //2¡¢É¨Ãè²Ù×÷·û
+    const char * oper = NULL ;
+    int olen = 0 ;
+    int osize = ::qkf_expr_scan_relation(str + offset , slen - offset , oper , olen) ;
+    if(osize <= 0)
+        return 0 ;
+    offset += osize ;
+
+    //3¡¢É¨ÃèÖµ
+    const char * value = NULL  ;
+    int vlen = 0 ;
+    int vsize = ::qkf_expr_scan_value(str + offset , slen - offset , value , vlen) ;
+    if(vsize <= 0)
+        return 0 ;
+    offset += vsize ;
+
+    //4¡¢¸³Öµ
+    qkf_arith_node_t * arith =  (qkf_arith_node_t *)node ;
+    arith->name = ::qkf_strdup(name , nlen) ;
+    arith->opera = ::qkf_strdup(oper , olen) ;
+    arith->value = ::qkf_strdup(value , vlen) ;
+
+    return offset ;
 }
 
-bool qkf_arith_node_final(qkf_arith_node_t * node) 
+void qkf_arith_node_final(qkf_arith_node_t * node) 
 {
+    if(node == NULL)
+        return ;
 
+    qkf_arith_node_free(&node->link) ;
 }
 
 
 bool qkf_logical_node_init(qkf_logical_node_t * node) 
 {
+    if((node == NULL) || (qkf_expr_node_init(&node->link) == false))
+        return false ;
 
+    node->opera = NULL ;
+    node->link.type = kExprNodeLogical ;
+    node->link.free = qkf_logical_node_free ;
+    return true ;
 }
 
 bool qkf_logical_node_free(qkf_expr_node_t * node) 
 {
+    if(node == NULL || node->type != kExprNodeLogical)
+        return false ;
 
+    qkf_logical_node_t * logical = (qkf_logical_node_t *)node ;
+    if(logical->opera != NULL)
+    {
+        ::qkf_free(kDefaultMMgr , logical->opera) ;
+        logical->opera = NULL ;
+    }
+
+    return qkf_expr_node_free(node) ;
 }
 
-bool qkf_logical_node_final(qkf_logical_node_t * node) 
+void qkf_logical_node_final(qkf_logical_node_t * node) 
 {
+    if(node == NULL)
+        return ;
 
+    qkf_expr_node_final(&node->link) ;
 }
 
 
 bool qkf_deguacus_node_init(qkf_deguacus_node_t * node) 
 {
+    if((node == NULL) || (qkf_expr_node_init(&node->link) == false))
+        return false ;
 
+    node->opera = NULL ;
+    node->link.type = kExprNodeDeguacus ;
+    node->link.free = qkf_deguacus_node_free ;
+    node->link.scan = qkf_deguacus_node_scan ;
+    return true ;
 }
 
 bool qkf_deguacus_node_free(qkf_expr_node_t * node) 
 {
+    if(node == NULL || node->type != kExprNodeDeguacus)
+        return false ;
 
+    qkf_deguacus_node_t * deguacus = (qkf_deguacus_node_t *)node ;
+    if(deguacus->opera != NULL)
+    {
+        ::qkf_free(kDefaultMMgr , deguacus->opera) ;
+        deguacus->opera = NULL ;
+    }
+
+    return qkf_expr_node_free(node) ;
 }
 
 int  qkf_deguacus_node_scan(qkf_expr_node_t * node , const char * str , int len) 
@@ -147,17 +221,41 @@ int  qkf_deguacus_node_scan(qkf_expr_node_t * node , const char * str , int len)
 
 }
 
-bool qkf_deguacus_node_final(qkf_deguacus_node_t * node) 
+void qkf_deguacus_node_final(qkf_deguacus_node_t * node) 
 {
+    if(node == NULL || node->link.type != kExprNodeDeguacus)
+        return ;
 
+    qkf_deguacus_node_free(&node->link) ;
 }
 
 
-int  qkf_deguacus_node_scan_cont(const char * str , int len , const char *&dstr , int&dlen) 
+int  qkf_deguacus_node_scan_cont(const char * str , int slen , const char *&dstr , int&dlen) 
 {
+    int offset = qkf_expr_skip_space(str , slen) ;
+    const char * cstr = str + offset ;
+    int csize = slen - offset ;
 
+    if(cstr[0] != '(')
+        return 0 ;
+
+    ++offset ;
+    ++cstr ;
+    --csize ;
+
+    char ch = 0 ;
+    int size = 0 ;
+    while((size < csize) && (ch = cstr[size]) != ')')
+        ++size ;
+
+    if(size == csize)
+        return 0 ;
+
+    dstr = cstr ;
+    dlen = size ;
+
+    return (offset + size + 1) ;
 }
-
 
 int  qkf_deguacus_node_parse_cont(qkf_deguacus_node_t * node , const char * str , int len) 
 {

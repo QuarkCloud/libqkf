@@ -30,7 +30,7 @@ struct __st_qkf_expr_node{
     qkf_expr_node_t *       right ;
 
     int (*scan)(qkf_expr_node_t * node , const char * str , int len) ;
-    int (*free)(qkf_expr_node_t * node) ;
+    bool (*free)(qkf_expr_node_t * node) ;
 } ;
 
 struct __st_qkf_arith_node{
@@ -55,7 +55,7 @@ struct __st_qkf_expr{
 } ;
 
 QKFAPI bool qkf_expr_node_init(qkf_expr_node_t * node) ;
-QKFAPI void qkf_expr_node_free(qkf_expr_node_t * node) ;
+QKFAPI bool qkf_expr_node_free(qkf_expr_node_t * node) ;
 QKFAPI void qkf_expr_node_final(qkf_expr_node_t * node) ;
 QKFAPI void qkf_expr_node_assign(qkf_expr_node_t * node , qkf_expr_node_t * src) ;
 QKFAPI bool qkf_expr_node_equal(const qkf_expr_node_t * src , const qkf_expr_node_t * dst) ;
@@ -63,21 +63,21 @@ QKFAPI bool qkf_expr_node_empty(const qkf_expr_node_t * node) ;
 
 QKFAPI bool qkf_arith_node_init(qkf_arith_node_t * node) ;
 QKFAPI bool qkf_arith_node_free(qkf_expr_node_t * node) ;
-QKFAPI int  qkf_arith_node_scan(qkf_expr_node_t * node , const char * str , int len) ;
-QKFAPI bool qkf_arith_node_final(qkf_arith_node_t * node) ;
+QKFAPI int  qkf_arith_node_scan(qkf_expr_node_t * node , const char * str , int slen) ;
+QKFAPI void qkf_arith_node_final(qkf_arith_node_t * node) ;
 
 QKFAPI bool qkf_logical_node_init(qkf_logical_node_t * node) ;
 QKFAPI bool qkf_logical_node_free(qkf_expr_node_t * node) ;
-QKFAPI bool qkf_logical_node_final(qkf_logical_node_t * node) ;
+QKFAPI void qkf_logical_node_final(qkf_logical_node_t * node) ;
 
 QKFAPI bool qkf_deguacus_node_init(qkf_deguacus_node_t * node) ;
 QKFAPI bool qkf_deguacus_node_free(qkf_expr_node_t * node) ;
-QKFAPI int  qkf_deguacus_node_scan(qkf_expr_node_t * node , const char * str , int len) ;
-QKFAPI bool qkf_deguacus_node_final(qkf_deguacus_node_t * node) ;
+QKFAPI int  qkf_deguacus_node_scan(qkf_expr_node_t * node , const char * str , int slen) ;
+QKFAPI void qkf_deguacus_node_final(qkf_deguacus_node_t * node) ;
 //扫描小括号之间的内容范围
-QKFAPI int  qkf_deguacus_node_scan_cont(const char * str , int len , const char *&dstr , int&dlen) ;
+QKFAPI int  qkf_deguacus_node_scan_cont(const char * str , int slen , const char *&dstr , int&dlen) ;
 //解析小括号之间的内容
-QKFAPI int  qkf_deguacus_node_parse_cont(qkf_deguacus_node_t * node , const char * str , int len) ;
+QKFAPI int  qkf_deguacus_node_parse_cont(qkf_deguacus_node_t * node , const char * str , int slen) ;
 QKFAPI int  qkf_deguacus_node_add_arith(qkf_deguacus_node_t * node , qkf_arith_node_t * arith) ;
 QKFAPI int  qkf_deguacus_node_add_logical(qkf_deguacus_node_t * node , qkf_logical_node_t * logical) ;
 
