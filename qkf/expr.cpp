@@ -257,9 +257,81 @@ int  qkf_deguacus_node_scan_cont(const char * str , int slen , const char *&dstr
     return (offset + size + 1) ;
 }
 
-int  qkf_deguacus_node_parse_cont(qkf_deguacus_node_t * node , const char * str , int len) 
+int  qkf_deguacus_node_parse_cont(qkf_deguacus_node_t * node , const char * str , int slen) 
 {
+    if(node == NULL || str == NULL || slen <= 0)
+        return -1 ;
 
+    int offset = qkf_expr_skip_space(str , slen) ;
+    const char * cstr = str + offset ;
+    int clen = slen - offset ;
+
+    int size = 0 ;
+    while(size < clen)
+    {
+        //第一个只会是关系表达式
+        const char * astr = cstr + size ;
+        int alen = clen - size ;
+
+        qkf_arith_node_t * arith = (qkf_arith_node_t *)::qkf_malloc(kDefaultMMgr , sizeof(qkf_arith_node_t)) ;
+        if(arith == NULL)
+            return -1 ;
+        if(qkf_arith_node_init(arith) == false)
+        {
+            ::qkf_free(kDefaultMMgr , arith) ;
+            return -1 ;
+        }
+
+        int asize = qkf_arith_node_scan(&arith->link , astr , alen) ;
+        if(asize <= 0)
+        {
+            qkf_arith_node_final(arith) ;
+            ::qkf_free(kDefaultMMgr , arith) ;
+            return 0 ;
+        }
+        if(qkf_deguacus_node_add_arith(node , arith) == false)
+        {
+            qkf_arith_node_final(arith) ;
+            qkf_free(kDefaultMMgr , arith) ;
+            return 0 ;
+        }
+        size += asize ;
+
+        //第二个可能是逻辑符号或者没有
+        int left = clen - size ;
+        if(left <= 0)
+            break ;
+
+        const char *lstr = cstr + size , *gstr = NULL ;
+        int glen = 0 ;
+        int lsize = qkf_expr_scan_logical(lstr , left , gstr , glen) ;
+        if(lsize == 0)
+            break ;
+
+        qkf_logical_node_t * logical = (qkf_logical_node_t *)::qkf_malloc(kDefaultMMgr , sizeof(qkf_logical_node_t)) ;
+        if(logical == NULL)
+            return -1 ;
+        if(qkf_logical_node_init(logical) == false)
+        {
+            ::qkf_free(kDefaultMMgr , logical) ;
+            return -1 ;
+        }
+        logical->opera = ::qkf_strdup(gstr , glen) ;
+
+        if(qkf_deguacus_node_add_logical(node , logical) == false)
+        {
+            qkf_logical_node_final(logical) ;
+            ::qkf_free(kDefaultMMgr , logical) ;
+            return 0 ;
+        }
+
+        size += lsize ;
+    }
+
+    if(size <= 0)
+        return 0 ;
+
+    return offset + size ;
 }
 
 int  qkf_deguacus_node_add_arith(qkf_deguacus_node_t * node , qkf_arith_node_t * arith) 
