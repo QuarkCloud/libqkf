@@ -61,15 +61,18 @@ QKFAPI void qkf_expr_node_assign(qkf_expr_node_t * node , qkf_expr_node_t * src)
 QKFAPI bool qkf_expr_node_equal(const qkf_expr_node_t * src , const qkf_expr_node_t * dst) ;
 QKFAPI bool qkf_expr_node_empty(const qkf_expr_node_t * node) ;
 
+QKFAPI qkf_arith_node_t * qkf_arith_node_new() ;
 QKFAPI bool qkf_arith_node_init(qkf_arith_node_t * node) ;
 QKFAPI bool qkf_arith_node_free(qkf_expr_node_t * node) ;
 QKFAPI int  qkf_arith_node_scan(qkf_expr_node_t * node , const char * str , int slen) ;
 QKFAPI void qkf_arith_node_final(qkf_arith_node_t * node) ;
 
+QKFAPI qkf_logical_node_t * qkf_logical_node_new() ;
 QKFAPI bool qkf_logical_node_init(qkf_logical_node_t * node) ;
 QKFAPI bool qkf_logical_node_free(qkf_expr_node_t * node) ;
 QKFAPI void qkf_logical_node_final(qkf_logical_node_t * node) ;
 
+QKFAPI qkf_deguacus_node_t * qkf_deguacus_node_new() ;
 QKFAPI bool qkf_deguacus_node_init(qkf_deguacus_node_t * node) ;
 QKFAPI bool qkf_deguacus_node_free(qkf_expr_node_t * node) ;
 QKFAPI int  qkf_deguacus_node_scan(qkf_expr_node_t * node , const char * str , int slen) ;
@@ -86,9 +89,9 @@ QKFAPI bool qkf_expr_init(qkf_expr_t * expr) ;
 QKFAPI void qkf_expr_final(qkf_expr_t * expr) ;
 QKFAPI void qkf_expr_clear(qkf_expr_t * expr) ;
 QKFAPI bool qkf_expr_parse(qkf_expr_t * expr , const char * str) ;
-QKFAPI const qkf_expr_node_t * qkf_expr_first() ;
-QKFAPI const qkf_expr_node_t * qkf_expr_next(const qkf_expr_node_t * node) ;
-QKFAPI const qkf_expr_node_t * qkf_expr_left(const qkf_expr_node_t * node) ;
+QKFAPI const qkf_expr_node_t * qkf_expr_first(qkf_expr_t * expr) ;
+QKFAPI const qkf_expr_node_t * qkf_expr_next(qkf_expr_t * expr , const qkf_expr_node_t * node) ;
+QKFAPI const qkf_expr_node_t * qkf_expr_left(qkf_expr_t * expr , const qkf_expr_node_t * node) ;
 
 QKFAPI bool qkf_expr_add_node(qkf_expr_t * expr , qkf_expr_node_t * node) ;
 QKFAPI bool qkf_expr_add_logical(qkf_expr_t * expr , qkf_logical_node_t * logical) ;
@@ -96,7 +99,7 @@ QKFAPI bool qkf_expr_add_logical(qkf_expr_t * expr , qkf_logical_node_t * logica
 QKFAPI int qkf_expr_skip_space(const char * str , int slen) ; 
 //以[A-Z , a-z , _]开头，后续跟着[A-Z , a-z , _ , 0-9]，如果是OR , AND，那么将被变成大写。
 QKFAPI int qkf_expr_scan_name(const char * str , int slen , const char *& name , int& nlen) ;
-QKFAPI int qkf_expr_check_logical(const char * str , int slen , char * upper , int ulen) ;
+QKFAPI bool qkf_expr_check_logical(const char * str , int slen , char * upper , int ulen) ;
 QKFAPI bool qkf_expr_check_digit(const char * str , int slen) ;
 QKFAPI int qkf_expr_scan_relation(const char * str , int slen , const char *& oper , int& olen) ;
 //扫描值，如果以""为界，那么取引号内部的内容，如果没有，则以空格为界
