@@ -186,3 +186,31 @@ bool qkf_parse_time(const char * str , int&year , int& month , int& day , int& h
 	return true ;	
 }
 
+time_t qkf_make_time(int year , int month , int day , int hour , int minute , int second)
+{
+    struct tm tm ;
+    memset(&tm , 0 , sizeof(tm)) ;
+
+    tm.tm_year = year - 1900 ;
+    tm.tm_mon = month - 1 ;
+    tm.tm_mday = day ;
+
+    tm.tm_hour = hour ;
+    tm.tm_min = minute ;
+    tm.tm_sec = second ;	
+
+    return ::mktime(&tm) ;
+}
+
+bool qkf_str_to_time(const char * str , time_t&  t , int& msec)
+{
+    int year , month , day , hour , minute , second ;
+    if(str == NULL || convert_time(str , year , month , day , hour , minute , second , msec) == false)
+	    return false ;
+
+    t = make_time(year , month , day , hour , minute , second) ;	
+    return true ;
+
+}
+
+

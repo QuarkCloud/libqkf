@@ -44,6 +44,10 @@ QKFAPI  bool qkf_time_from_date(time_t * t , const date_t * date) ;
 */
 QKFAPI bool qkf_parse_time(const char * str , int&year , int& month , int& day , int& hour , int& minute , int& second , int& msec) ;
 
+QKFAPI time_t qkf_make_time(int year , int month , int day , int hour , int minute , int second) ;
+
+QKFAPI bool qkf_str_to_time(const char * str , time_t&  t , int& msec) ;
+
 __END_DECLS
 
 #endif  /** __QKF_TIME_H */

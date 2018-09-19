@@ -179,6 +179,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\field.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\fieldx.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hash.cpp"
 				>
 			</File>
@@ -210,6 +218,10 @@
 				RelativePath=".\time.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\tytils.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -222,6 +234,14 @@
 			</File>
 			<File
 				RelativePath="..\include\qkf\expr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\field.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\fieldx.h"
 				>
 			</File>
 			<File
@@ -254,6 +274,10 @@
 			</File>
 			<File
 				RelativePath="..\include\qkf\time.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\tytils.h"
 				>
 			</File>
 		</Filter>
