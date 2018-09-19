@@ -205,10 +205,10 @@ time_t qkf_make_time(int year , int month , int day , int hour , int minute , in
 bool qkf_str_to_time(const char * str , time_t&  t , int& msec)
 {
     int year , month , day , hour , minute , second ;
-    if(str == NULL || convert_time(str , year , month , day , hour , minute , second , msec) == false)
+    if(str == NULL || qkf_parse_time(str , year , month , day , hour , minute , second , msec) == false)
 	    return false ;
 
-    t = make_time(year , month , day , hour , minute , second) ;	
+    t = qkf_make_time(year , month , day , hour , minute , second) ;	
     return true ;
 
 }

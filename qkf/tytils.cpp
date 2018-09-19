@@ -185,7 +185,7 @@ const char * qkf_str_to_int64(const char * str , int size , int64_t& value)
 			{
 				buf[index] = '\0' ;
                 char *last = NULL ;
-                long long int lli = ::strtoll(buf , &last , 10) ;
+                long long int lli = ::strtol(buf , &last , 10) ;
                 value = (int64_t)lli ;
 			}
 		}

@@ -222,6 +222,10 @@
 				RelativePath=".\tytils.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\vector.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -278,6 +282,10 @@
 			</File>
 			<File
 				RelativePath="..\include\qkf\tytils.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\vector.h"
 				>
 			</File>
 		</Filter>

@@ -8,15 +8,15 @@
 
 __BEGIN_DECLS
 
-typedef union  __qkf_un_field_data      qkf_field_data_t ;
-typedef struct __qkf_st_field_str       qkf_field_str_t ;
-typedef struct __qkf_st_field_raw       qkf_field_raw_t ;
-typedef struct __qkf_st_field_list      qkf_field_list_t ;
-typedef struct __qkf_st_field_map       qkf_field_map_t ;
+typedef union  __un_qkf_field_data      qkf_field_data_t ;
+typedef struct __st_qkf_field_str       qkf_field_str_t ;
+typedef struct __st_qkf_field_raw       qkf_field_raw_t ;
+typedef struct __st_qkf_field_list      qkf_field_list_t ;
+typedef struct __st_qkf_field_map       qkf_field_map_t ;
 
-typedef struct __qkf_st_field_def       qkf_field_def_t ;
+typedef struct __st_qkf_field_def       qkf_field_def_t ;
 
-union __qkf_un_field_data{
+union __un_qkf_field_data{
     bool                bv  ;
     int64_t		        ts ;
 
@@ -40,6 +40,7 @@ union __qkf_un_field_data{
     uint64_t            val ;
 } ;
 
+static const uint8_t       kTypeMIN         =   0   ;
 static const uint8_t       kTypeVOID        =   0   ;
 static const uint8_t       kTypeBOOL        =   1   ;
 static const uint8_t       kTypeTIME        =   2   ;
@@ -59,28 +60,30 @@ static const uint8_t       kTypeSTR         =   13  ;
 static const uint8_t       kTypeRAW         =   14  ;
 static const uint8_t       kTypeLIST        =   15  ;
 static const uint8_t       kTypeMAP         =   16  ;
+static const uint8_t       kTypeMAX         =   16  ;
 
 
-struct __qkf_st_field_def{
+struct __st_qkf_field_def{
     char *          name ;
     uint8_t         type ;              //数据类型，指示field_data_t中，取哪一种共用体
     int8_t          index ;             //在纪录中的下标，-1表示非法，从0开始
     uint16_t        offset ;            //在纪录中的偏移量
 } ;
 
-struct __qkf_st_field_str{
+struct __st_qkf_field_str{
     uint16_t    size ;
     char        data[6] ;               //拼成8个字节
 } ;
 
-struct __qkf_st_field_raw{
+struct __st_qkf_field_raw{
     uint32_t    size ;
     char        data[4] ;    
 } ;
 
 QKFAPI qkf_field_def_t * qkf_field_def_new(const char * name , uint8_t type) ;
+QKFAPI void qkf_field_def_free(qkf_field_def_t * def) ;
 QKFAPI bool qkf_field_def_init(qkf_field_def_t * def , const char * name , uint8_t type) ;
-QKFAPI void qkf_field_def_final(qkf_field_def_t * def , const char * name , uint8_t type) ;
+QKFAPI void qkf_field_def_final(qkf_field_def_t * def) ;
 
 
 __END_DECLS
