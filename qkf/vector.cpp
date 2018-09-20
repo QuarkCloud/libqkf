@@ -114,3 +114,80 @@ bool qkf_vector_del(qkf_vector_t * vector , int index)
     --vector->size ;
     return true ;
 }
+
+bool qkf_vector_extend(qkf_vector_t * vector)
+{
+    if(vector == NULL)
+        return false ;
+
+    uint32_t capacity = vector->capacity ;
+    if(capacity == 0)
+        capacity = 8 ;
+    else if(capacity < 4096)
+        capacity = capacity << 1 ;
+    else
+        capacity += 4096 ;
+
+    size_t ext_size = capacity * vector->elem_usage ;
+    uint8_t * data = (uint8_t *)::qkf_malloc(kDefaultMMgr , ext_size) ;
+    if(data == NULL)
+        return false ;
+    ::memset(data , 0 , ext_size) ;
+
+    uint8_t * old_data = vector->data ;
+    size_t old_size = vector->elem_usage * vector->capacity ;
+    if(old_size != 0 && vector->data != NULL)
+        ::memcpy(data , vector->data , old_size) ;
+
+    vector->data = data ;
+    if(old_data != NULL)
+        ::qkf_free(kDefaultMMgr , old_data) ;
+
+    vector->capacity = capacity ;
+    return true ;
+}
+
+bool qkf_vector_shrink(qkf_vector_t * vector)
+{
+    if(vector == NULL)
+        return false ;
+    if(vector->data == NULL || vector->capacity == 0)
+        return true ;
+
+    uint32_t capacity = vector->capacity ;
+    uint32_t size = vector->size ;
+    uint32_t newcap = 0 ;
+
+    if(capacity >= 4096)
+    {
+        if(capacity < (size * 2))
+            return  false ;
+        newcap = capacity - 4096 ;
+    }
+    else
+    {
+        if(capacity < (size * 3))
+            return false ;
+
+        newcap = capacity >> 1 ;
+    }
+
+    if(newcap < 8)
+        newcap = 8 ;
+    if(newcap >= capacity)
+        return false ;
+
+    size_t shr_size = vector->elem_usage * newcap ;
+    uint8_t * data = (uint8_t *)::qkf_malloc(kDefaultMMgr , shr_size) ;
+    if(data == NULL)
+        return false ;
+
+    ::memcpy(data , vector->data , shr_size) ;
+    uint8_t * old_data = vector->data ;
+    vector->data = data ;
+
+    if(old_data != NULL)
+        ::qkf_free(kDefaultMMgr , old_data) ;
+
+    return true ;
+}

@@ -11,10 +11,21 @@ __BEGIN_DECLS
 
 typedef struct __st_qkf_map_header qkf_map_header_t ;
 
-//list可以近似于vector
+/**
+    2018-09-20
+    list可以近似于vector，只是vector删除的代价过高，
+    所以使用环形缓冲区模式来实现list
+*/
 struct __st_qkf_field_list{
     uint8_t             type ;              //元素类型定义
-    
+
+    uint32_t            capacity ;
+    uint32_t            size ;
+
+    uint32_t            head ;
+    uint32_t            tail ;
+
+    qkf_field_data_t *  datas ;              //存放数据    
 } ;
 
 struct __st_qkf_field_map{
@@ -30,13 +41,17 @@ struct __st_qkf_map_header{
     qkf_vector_t        defs ;
 } ;
 
-QKFAPI qkf_field_list_t * qkf_field_list_new(int capacity) ;
-QKFAPI bool qkf_field_list_init(qkf_field_list_t * list , int capacity) ;
+QKFAPI qkf_field_list_t * qkf_field_list_new(uint8_t type , int capacity) ;
+QKFAPI bool qkf_field_list_init(qkf_field_list_t * list , uint8_t type , int capacity) ;
 QKFAPI void qkf_field_list_final(qkf_field_list_t * list) ;
 QKFAPI void qkf_field_list_free(qkf_field_list_t * list) ;
 QKFAPI void qkf_field_list_clear(qkf_field_list_t * list) ;
 
 QKFAPI bool qkf_field_list_push(qkf_field_list_t * list , qkf_field_data_t * data) ;
+QKFAPI bool qkf_field_list_pop(qkf_field_list_t * list , qkf_field_data_t & data) ;
+
+QKFAPI bool qkf_field_list_extend(qkf_field_list_t * list) ;
+QKFAPI bool qkf_field_list_shrink(qkf_field_list_t * list) ;
 
 __END_DECLS
 

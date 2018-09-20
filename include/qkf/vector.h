@@ -9,7 +9,7 @@ __BEGIN_DECLS
 
 typedef struct __st_qkf_vector qkf_vector_t ;
 struct __st_qkf_vector{
-    uint32_t        capacity ;
+    uint32_t        capacity ;          
     uint32_t        size ;
 
     uint16_t        elem_size ;         //数据长度
@@ -27,6 +27,9 @@ QKFAPI void *qkf_vector_get(qkf_vector_t * vector , int index) ;
 QKFAPI bool qkf_vector_set(qkf_vector_t * vector , int index , void * data) ;
 QKFAPI bool qkf_vector_add(qkf_vector_t * vector , void * data) ;
 QKFAPI bool qkf_vector_del(qkf_vector_t * vector , int index) ;
+
+QKFAPI bool qkf_vector_extend(qkf_vector_t * vector) ;
+QKFAPI bool qkf_vector_shrink(qkf_vector_t * vector) ;
 
 __END_DECLS
 
