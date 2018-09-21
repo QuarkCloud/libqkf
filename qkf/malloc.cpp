@@ -26,8 +26,10 @@ void qkf_free(int mmgr , void * addr)
 
 char * qkf_strdup(const char * str , int size)
 {
-    if(str == NULL || size <= 0)
+    if(str == NULL || size < 0)
         return NULL ;
+    if(size == 0)
+        size = ::strlen(str) ;
 
     int nsize = size ;
     if(str[size - 1] != '\0')
