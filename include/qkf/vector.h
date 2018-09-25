@@ -25,7 +25,7 @@ QKFAPI void qkf_vector_final(qkf_vector_t * vector) ;
 QKFAPI void qkf_vector_clear(qkf_vector_t * vector) ;
 QKFAPI void *qkf_vector_get(qkf_vector_t * vector , int index) ;
 QKFAPI bool qkf_vector_set(qkf_vector_t * vector , int index , void * data) ;
-QKFAPI bool qkf_vector_add(qkf_vector_t * vector , void * data) ;
+QKFAPI int qkf_vector_add(qkf_vector_t * vector , void * data) ;
 QKFAPI bool qkf_vector_del(qkf_vector_t * vector , int index) ;
 QKFAPI int qkf_vector_size(qkf_vector_t * vector) ;
 

@@ -86,16 +86,17 @@ bool qkf_vector_set(qkf_vector_t * vector , int index , void * data)
     return true ;
 }
 
-bool qkf_vector_add(qkf_vector_t * vector , void * data)
+int qkf_vector_add(qkf_vector_t * vector , void * data)
 {
     if(vector == NULL || data == NULL || vector->size >= vector->capacity)
-        return false ;
+        return -1 ;
 
     uint8_t * addr = vector->datas + vector->elem_usage * vector->size ;
 
     ::memcpy(addr , data , vector->elem_size) ;
+    int index = vector->size ;
     ++vector->size ;
-    return true ;
+    return index ;
 }
 
 bool qkf_vector_del(qkf_vector_t * vector , int index)

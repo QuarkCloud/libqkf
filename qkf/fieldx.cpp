@@ -215,45 +215,37 @@ bool qkf_field_list_shrink(qkf_field_list_t * list)
     return true ;
 }
 
-qkf_map_header_t * qkf_map_header_new()
+qkf_field_map_t * qkf_field_map_new()
 {
-    size_t header_size = sizeof(qkf_map_header_t) ;
-    qkf_map_header_t * header = (qkf_map_header_t *)::qkf_malloc(kDefaultMMgr , header_size) ;
-    if(header == NULL)
+    size_t map_size = sizeof(qkf_field_map_t) ;
+    qkf_field_map_t * map = (qkf_field_map_t *)::qkf_malloc(kDefaultMMgr , map_size) ;
+    if(map == NULL)
         return NULL ;
-    ::memset(header , 0 , header_size) ;
-
-    if(qkf_map_header_init(header) == false)
+    if(qkf_field_map_init(map) == false)
     {
-        ::qkf_free(kDefaultMMgr , header) ;
+        ::qkf_free(kDefaultMMgr , map) ;
         return NULL ;
     }
 
-    return header ;
+    return map ;
 }
 
-void qkf_map_header_free(qkf_map_header_t * header)
+void qkf_field_map_free(qkf_field_map_t * map)
 {
-    if(header == NULL)
+    if(map == NULL)
         return ;
 
-    qkf_map_header_final(header) ;
-    ::qkf_free(kDefaultMMgr , header) ;
+    qkf_field_map_final(map) ;
+    ::qkf_free(kDefaultMMgr , map) ;
 }
 
-typedef struct __st_qkf_map_header_node{
-    rb_node_t       link ;
-    const char  *   name ;
-    int             index ;
-} qkf_map_header_node_t;
-
-int qkf_map_header_compare(const rb_node_t * src , const rb_node_t * dst)
+int qkf_field_map_node_compare(const rb_node_t * src , const rb_node_t * dst)
 {
     if(src == NULL || dst == NULL)
         return 0 ;
 
-    const qkf_map_header_node_t * src_node = (const qkf_map_header_node_t *) src ;
-    const qkf_map_header_node_t * dst_node = (const qkf_map_header_node_t *) dst ;
+    const qkf_field_map_node_t * src_node = (const qkf_field_map_node_t *)src ;
+    const qkf_field_map_node_t * dst_node = (const qkf_field_map_node_t *)dst ;
 
     if(src_node->name == NULL || dst_node->name == NULL)
         return 0 ;
@@ -261,110 +253,150 @@ int qkf_map_header_compare(const rb_node_t * src , const rb_node_t * dst)
     return ::strcmp(src_node->name , dst_node->name) ;
 }
 
-bool qkf_map_header_init(qkf_map_header_t * header)
+bool qkf_field_map_init(qkf_field_map_t * map)
 {
-    if(header == NULL)
+    if(map == NULL)
         return false ;
+    map->names.root = NULL ;
+    map->names.key_compare = qkf_field_map_node_compare ;
 
-    header->names.root = NULL ;
-    header->names.key_compare = qkf_map_header_compare ;
-
-    return qkf_vector_init(&header->defs , sizeof(qkf_field_def_t) , 8) ;
+    return qkf_vector_init(&map->nodes , sizeof(qkf_field_map_node_t) , 8) ;
 }
 
-void qkf_map_header_final(qkf_map_header_t * header)
+void qkf_field_map_final(qkf_field_map_t * map)
 {
-    if(header == NULL)
+    if(map == NULL)
         return ;
 
-    //1、释放红黑树节点
-    rb_node_t * cur = rb_first(&header->names) ;
-    rb_node_t * next = NULL ;
-    while(cur != NULL)
-    {
-        next = rb_next(cur) ;
-        ::qkf_free(kDefaultMMgr , cur) ;
-        cur = next ;
-    }
-    header->names.root = NULL ;
+    map->names.root = NULL ;
 
     //2、释放字段定义中的名字
-    int size = qkf_vector_size(&header->defs) ;
+    int size = qkf_vector_size(&map->nodes) ;
     for(int fidx = 0 ; fidx < size ; ++fidx)
     {
-        qkf_field_def_t * def = (qkf_field_def_t *)::qkf_vector_get(&header->defs , fidx) ;
-        if(def->name != NULL)
-            ::qkf_free(kDefaultMMgr , def->name) ;
+        qkf_field_map_node_t * node = (qkf_field_map_node_t *)::qkf_vector_get(&map->nodes , fidx) ;
+        qkf_field_map_node_final(node) ;
     }
-    qkf_vector_final(&header->defs) ;
-    ::qkf_free(kDefaultMMgr , header) ;
+    qkf_vector_final(&map->nodes) ;
+    ::qkf_free(kDefaultMMgr , map) ;
 }
 
-int qkf_map_header_add(qkf_map_header_t * header , const char * name , uint8_t type)
+void qkf_field_map_node_final(qkf_field_map_node_t * node) 
 {
-    if(header == NULL || name == NULL || (type < kTypeMIN || type > kTypeMAX))
-        return -1 ;
+    if(node == NULL)
+        return ;
 
-    int index = 0 ;
-    if(qkf_map_header_get_by_name(header , name , index) == true)
-        return index ;
-
-    index = qkf_vector_size(&header->defs) ;
-
-    qkf_field_def_t def ;
-    def.name = qkf_strdup(name , 0) ;
-    def.type = type ;
-    def.index = index ;
-    def.offset = 0 ;
-    if(qkf_vector_add(&header->defs , &def) == false)
+    if(node->name != NULL)
     {
-        ::qkf_free(kDefaultMMgr , def.name) ;
-        return -1 ;
+        ::qkf_free(kDefaultMMgr , node->name) ;
+        node->name = NULL ;
     }
 
-    size_t nsize = sizeof(qkf_map_header_node_t) ;
-    qkf_map_header_node_t * node = (qkf_map_header_node_t *)::qkf_malloc(kDefaultMMgr , nsize) ;
-    if(node == NULL)
+    uint8_t type = node->type ;
+    if(node->type == kTypeSTR || node->type == kTypeRAW)
+        ::qkf_free(kDefaultMMgr , node->data.str) ;
+    else if(node->type == kTypeLIST)
+        qkf_field_list_free(node->data.list) ;
+    else if(node->type == kTypeMAP)
+        qkf_field_map_free(node->data.map) ;
+
+    node->data.val = 0 ;
+}
+
+int qkf_field_map_add(qkf_field_map_t * map , const char * name , uint8_t type , qkf_field_data_t * data)
+{
+    if(map == NULL || name == NULL || type < kTypeMIN || type > kTypeMAX || data == NULL)
         return -1 ;
-    ::memset(node , 0 , nsize) ;
-    node->name = def.name ;
+
+    //qkf_field_map_node_t * node = NULL ;
+    int index = -1 ;
+    if(qkf_field_map_get_by_name(map , name , index) == true)
+        return -1 ;
+
+    qkf_field_map_node_t field ;
+    field.name = qkf_strdup(name , 0) ;
+    field.type = type ;
+    field.index = -1 ;
+    field.data.val = data->val ;
+
+    if((index = qkf_vector_add(&map->nodes , &field)) < 0)
+    {
+        ::qkf_free(kDefaultMMgr , field.name) ;
+        return -1 ;
+    }
+    
+    qkf_field_map_node_t * node = (qkf_field_map_node_t *)qkf_vector_get(&map->nodes , index) ;
+    if(node == NULL)
+        return -1 ;   
     node->index = index ;
 
-    if(rb_insert(&header->names , &node->link) == true)
+    if(rb_insert(&map->names , &node->link) == true)
         return index ;
-    ::qkf_free(kDefaultMMgr , node) ;
-    return -1 ;
+    else
+        return -1 ;
 }
 
-int qkf_map_header_size(qkf_map_header_t * header)
+bool qkf_field_map_del(qkf_field_map_t * map , const char * name)
 {
-    return (header == NULL)?0:qkf_vector_size(&header->defs) ;
-}
-
-bool qkf_map_header_get_by_index(qkf_map_header_t * header , int index , const char *& name , uint8_t& type)
-{
-    if(header == NULL)
+    if(map == NULL || name == NULL)
         return false ;
 
-    qkf_field_def_t * def = (qkf_field_def_t *)qkf_vector_get(&header->defs , index) ;
-    if(def == NULL)
+    int index = -1 ;
+    if(qkf_field_map_get_by_name(map , name , index) == false || index < 0)
         return false ;
 
-    name = def->name ;
-    type = def->type ;
+    qkf_field_map_node_t * node = (qkf_field_map_node_t *)qkf_vector_get(&map->nodes , index) ;
+    rb_erase(&map->names , &node->link) ;
+
+    if(node != NULL)
+        qkf_field_map_node_final(node) ;
+    qkf_vector_del(&map->nodes , index) ;
+
+    int size = qkf_vector_size(&map->nodes) ;
+    for(int fidx = index ; fidx < size ; ++fidx)
+    {
+        qkf_field_map_node_t * node = (qkf_field_map_node_t *)qkf_vector_get(&map->nodes , fidx) ;
+        node->index = fidx ;
+    }
     return true ;
 }
 
-bool qkf_map_header_get_by_name(qkf_map_header_t * header , const char * name , int& index)
+bool qkf_field_map_update(qkf_field_map_t * map , const char * name , qkf_field_data_t * data)
 {
-    if(header == NULL || name == NULL)
+    if(map == NULL || name == NULL || data == NULL)
+        return false ;
+    int index = -1 ;
+    if(qkf_field_map_get_by_name(map , name , index) == false || index < 0)
         return false ;
 
-    qkf_map_header_node_t node  ;
-    ::memset(&node , 0 , sizeof(node)) ;
-    node.name = name ;
+    qkf_field_map_node_t * node = (qkf_field_map_node_t *)qkf_vector_get(&map->nodes , index) ;
+    node->data.val = data->val ;
+    return true ;
+}
 
-    qkf_map_header_node_t * f = (qkf_map_header_node_t *)rb_find(&header->names , &node.link) ;
+int qkf_field_map_size(qkf_field_map_t * map)
+{
+    return (map == NULL) ? 0 : qkf_vector_size(&map->nodes) ;
+}
+
+bool qkf_field_map_get_by_index(qkf_field_map_t * map , int index , qkf_field_map_node_t*&node)
+{
+    if(map == NULL)
+        return false ;
+
+    node = (qkf_field_map_node_t *)::qkf_vector_get(&map->nodes , index) ;
+    return (node != NULL) ;
+}
+
+bool qkf_field_map_get_by_name(qkf_field_map_t * map , const char * name , int& index)
+{
+    if(map == NULL || name == NULL)
+        return false ;
+
+    qkf_field_map_node_t node ;
+    node.name = (char *)name ;
+
+    qkf_field_map_node_t * f = (qkf_field_map_node_t *)rb_find(&map->names , &node.link) ;
     if(f == NULL)
         return false ;
 
