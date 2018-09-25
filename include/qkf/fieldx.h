@@ -29,9 +29,7 @@ struct __st_qkf_field_list{
 
 typedef struct __st_qkf_field_map_node{
     rb_node_t           link ;
-    char *              name ;
-    uint8_t             type ;
-    int                 index ;
+    qkf_field_def_t     def ;
     qkf_field_data_t    data ;
 } qkf_field_map_node_t ;
 

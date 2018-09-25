@@ -247,10 +247,10 @@ int qkf_field_map_node_compare(const rb_node_t * src , const rb_node_t * dst)
     const qkf_field_map_node_t * src_node = (const qkf_field_map_node_t *)src ;
     const qkf_field_map_node_t * dst_node = (const qkf_field_map_node_t *)dst ;
 
-    if(src_node->name == NULL || dst_node->name == NULL)
+    if(src_node->def.name == NULL || dst_node->def.name == NULL)
         return 0 ;
 
-    return ::strcmp(src_node->name , dst_node->name) ;
+    return ::strcmp(src_node->def.name , dst_node->def.name) ;
 }
 
 bool qkf_field_map_init(qkf_field_map_t * map)
@@ -286,18 +286,18 @@ void qkf_field_map_node_final(qkf_field_map_node_t * node)
     if(node == NULL)
         return ;
 
-    if(node->name != NULL)
+    if(node->def.name != NULL)
     {
-        ::qkf_free(kDefaultMMgr , node->name) ;
-        node->name = NULL ;
+        ::qkf_free(kDefaultMMgr , node->def.name) ;
+        node->def.name = NULL ;
     }
 
-    uint8_t type = node->type ;
-    if(node->type == kTypeSTR || node->type == kTypeRAW)
+    uint8_t type = node->def.type ;
+    if(type == kTypeSTR || type == kTypeRAW)
         ::qkf_free(kDefaultMMgr , node->data.str) ;
-    else if(node->type == kTypeLIST)
+    else if(type == kTypeLIST)
         qkf_field_list_free(node->data.list) ;
-    else if(node->type == kTypeMAP)
+    else if(type == kTypeMAP)
         qkf_field_map_free(node->data.map) ;
 
     node->data.val = 0 ;
@@ -314,21 +314,21 @@ int qkf_field_map_add(qkf_field_map_t * map , const char * name , uint8_t type ,
         return -1 ;
 
     qkf_field_map_node_t field ;
-    field.name = qkf_strdup(name , 0) ;
-    field.type = type ;
-    field.index = -1 ;
+    field.def.name = qkf_strdup(name , 0) ;
+    field.def.type = type ;
+    field.def.index = -1 ;
     field.data.val = data->val ;
 
     if((index = qkf_vector_add(&map->nodes , &field)) < 0)
     {
-        ::qkf_free(kDefaultMMgr , field.name) ;
+        ::qkf_free(kDefaultMMgr , field.def.name) ;
         return -1 ;
     }
     
     qkf_field_map_node_t * node = (qkf_field_map_node_t *)qkf_vector_get(&map->nodes , index) ;
     if(node == NULL)
         return -1 ;   
-    node->index = index ;
+    node->def.index = index ;
 
     if(rb_insert(&map->names , &node->link) == true)
         return index ;
@@ -356,7 +356,7 @@ bool qkf_field_map_del(qkf_field_map_t * map , const char * name)
     for(int fidx = index ; fidx < size ; ++fidx)
     {
         qkf_field_map_node_t * node = (qkf_field_map_node_t *)qkf_vector_get(&map->nodes , fidx) ;
-        node->index = fidx ;
+        node->def.index = fidx ;
     }
     return true ;
 }
@@ -394,13 +394,13 @@ bool qkf_field_map_get_by_name(qkf_field_map_t * map , const char * name , int& 
         return false ;
 
     qkf_field_map_node_t node ;
-    node.name = (char *)name ;
+    node.def.name = (char *)name ;
 
     qkf_field_map_node_t * f = (qkf_field_map_node_t *)rb_find(&map->names , &node.link) ;
     if(f == NULL)
         return false ;
 
-    index = f->index ;
+    index = f->def.index ;
     return true ;
 }
 

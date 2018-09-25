@@ -219,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tuple.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\tytils.cpp"
 				>
 			</File>
@@ -278,6 +282,10 @@
 			</File>
 			<File
 				RelativePath="..\include\qkf\time.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\tuple.h"
 				>
 			</File>
 			<File
