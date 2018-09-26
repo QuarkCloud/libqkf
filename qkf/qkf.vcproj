@@ -183,10 +183,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fieldx.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hash.cpp"
 				>
 			</File>
@@ -246,10 +242,6 @@
 			</File>
 			<File
 				RelativePath="..\include\qkf\field.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\qkf\fieldx.h"
 				>
 			</File>
 			<File

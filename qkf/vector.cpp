@@ -62,6 +62,8 @@ void qkf_vector_clear(qkf_vector_t * vector)
 {
     if(vector != NULL)
         vector->size = 0 ;
+
+    ::memset(vector->datas , 0 , vector->elem_usage * vector->capacity) ;
 }
 
 void *qkf_vector_get(qkf_vector_t * vector , int index)
