@@ -39,139 +39,230 @@ qkf_field_raw_t * qkf_field_raw_new(const void * raw , size_t size)
 }
 
 
-void qkf_field_data_set_bool(qkf_field_data_t * field , bool value)
+bool qkf_field_data_set_bool(qkf_field_data_t * field , bool value)
 {
+    if(field == NULL)
+        return false ;
     field->bv = value ;
+    return true ;
 }
 
-void qkf_field_data_set_time(qkf_field_data_t * field , time_t value)
+bool qkf_field_data_set_time(qkf_field_data_t * field , time_t value)
 {
+    if(field == NULL)
+        return false ;
     field->ts = value ;
+    return true ;
 }
 
-void qkf_field_data_set_int8(qkf_field_data_t * field , int8_t value)
+bool qkf_field_data_set_int8(qkf_field_data_t * field , int8_t value)
 {
+    if(field == NULL)
+        return false ;
     field->i8 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_uint8(qkf_field_data_t * field , uint8_t value)
+bool qkf_field_data_set_uint8(qkf_field_data_t * field , uint8_t value)
 {
+    if(field == NULL)
+        return false ;
     field->u8 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_int16(qkf_field_data_t * field , int16_t value)
+bool qkf_field_data_set_int16(qkf_field_data_t * field , int16_t value)
 {
+    if(field == NULL)
+        return false ;
     field->i16 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_uint16(qkf_field_data_t * field , uint16_t value)
+bool qkf_field_data_set_uint16(qkf_field_data_t * field , uint16_t value)
 {
+    if(field == NULL)
+        return false ;
     field->u16 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_int32(qkf_field_data_t * field , int32_t value)
+bool qkf_field_data_set_int32(qkf_field_data_t * field , int32_t value)
 {
+    if(field == NULL)
+        return false ;
     field->i32 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_uint32(qkf_field_data_t * field , uint32_t value)
+bool qkf_field_data_set_uint32(qkf_field_data_t * field , uint32_t value)
 {
+    if(field == NULL)
+        return false ;
     field->u32 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_int64(qkf_field_data_t * field , int64_t value)
+bool qkf_field_data_set_int64(qkf_field_data_t * field , int64_t value)
 {
+    if(field == NULL)
+        return false ;
     field->i64 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_uint64(qkf_field_data_t * field , uint64_t value)
+bool qkf_field_data_set_uint64(qkf_field_data_t * field , uint64_t value)
 {
+    if(field == NULL)
+        return false ;
     field->u64 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_float(qkf_field_data_t * field , float value)
+bool qkf_field_data_set_float(qkf_field_data_t * field , float value)
 {
+    if(field == NULL)
+        return false ;
     field->f32 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_double(qkf_field_data_t * field , double value)
+bool qkf_field_data_set_double(qkf_field_data_t * field , double value)
 {
+    if(field == NULL)
+        return false ;
     field->f64 = value ;
+    return true ;
 }
 
-void qkf_field_data_set_str(qkf_field_data_t * field , const char * str)
+bool qkf_field_data_set_str(qkf_field_data_t * field , const char * str)
 {
     if(field == NULL)
-        return ;
-
+        return false;
+    if(field->str != NULL)
+        ::qkf_free(kDefaultMMgr , field->str) ;
     field->str = qkf_field_str_new(str) ;
+    return true ;
 }
 
-void qkf_field_data_set_raw(qkf_field_data_t * field , const void * raw , size_t size)
+bool qkf_field_data_set_raw(qkf_field_data_t * field , const void * raw , size_t size)
 {
     if(field == NULL)
-        return ;
-
+        return false;
+    if(field->raw != NULL)
+        ::qkf_free(kDefaultMMgr , field->raw) ;
     field->raw = qkf_field_raw_new(raw , size) ;
+    return true ;
 }
 
-void qkf_field_data_set_list(qkf_field_data_t * field , const qkf_field_list_t *list)
+bool qkf_field_data_set_list(qkf_field_data_t * field , const qkf_field_list_t *list)
 {
     if(field == NULL)
-        return ;
-    if(list == NULL)
+        return false;
+    if(field->list != NULL)
     {
+        qkf_field_list_free(field->list) ;
         field->list = NULL ;
-        return ;
     }
+    if(list == NULL)
+        return true;
 
     qkf_field_list_t * new_list = qkf_field_list_new(list->type , list->capacity) ;
     if(new_list == NULL)
-        return ;
+        return false;
 
     qkf_field_list_copy(list , new_list) ;
     field->list = new_list ;
+    return true ;
 }
 
-void qkf_field_data_set_map(qkf_field_data_t * field , const qkf_field_map_t * map)
+bool qkf_field_data_set_map(qkf_field_data_t * field , const qkf_field_map_t * map)
 {
     if(field == NULL)
-        return ;
-    if(map == NULL)
+        return false;
+    if(field->map != NULL)
     {
+        qkf_field_map_free(field->map) ;
         field->map = NULL ;
-        return ;
     }
+    if(map == NULL)
+        return true;
 
     qkf_field_map_t * new_map = qkf_field_map_new() ;
     if(new_map == NULL)
-        return ;
+        return false;
     qkf_field_map_copy(map , new_map) ;
     field->map = new_map ;
+    return true ;
 }
 
-void qkf_field_data_attach_str(qkf_field_data_t * field , qkf_field_str_t * str)
+bool qkf_field_data_attach_str(qkf_field_data_t * field , qkf_field_str_t * str)
 {
-    if(field != NULL)
-        field->str = str ;
+    if(field == NULL)
+        return false ;
+    if(field->str != NULL)
+        ::qkf_free(kDefaultMMgr , field->str) ;
+    field->str = str ;
+    return true ;
 }
 
-void qkf_field_data_attach_raw(qkf_field_data_t * field , qkf_field_raw_t * raw)
+bool qkf_field_data_attach_raw(qkf_field_data_t * field , qkf_field_raw_t * raw)
 {
-    if(field != NULL)
-        field->raw = raw ;
+    if(field == NULL)
+        return false ;
+    if(field->raw != NULL)
+        ::qkf_free(kDefaultMMgr , field->raw) ;
+    field->raw = raw ;
+    return true ;
 }
 
-void qkf_field_data_attach_list(qkf_field_data_t * field , qkf_field_list_t *list)
+bool qkf_field_data_attach_list(qkf_field_data_t * field , qkf_field_list_t *list)
 {
-    if(field != NULL)
-        field->list = list ;
+    if(field == NULL)
+        return false ;
+    if(field->list != NULL)
+        qkf_field_list_free(field->list) ;
+    field->list = list ;
+    return true ;
 }
 
-void qkf_field_data_attach_map(qkf_field_data_t * field , qkf_field_map_t * map)
+bool qkf_field_data_attach_map(qkf_field_data_t * field , qkf_field_map_t * map)
 {
-    if(field != NULL)
-        field->map = map ;
+    if(field == NULL)
+        return false ;
+    if(field->map != NULL)
+        ::qkf_field_map_free(field->map) ;
+    field->map = map ;
+    return true ;
+}
+
+void qkf_field_data_free(uint8_t type , qkf_field_data_t * field)
+{
+    if(type <= kTypeMIN || type > kTypeMAX || field == NULL)
+        return ;
+
+    if(type == kTypeSTR)
+    {
+        if(field->str != NULL)
+            ::qkf_free(kDefaultMMgr , field->str) ;
+    }
+    else if(type == kTypeRAW)
+    {
+        if(field->raw != NULL)
+            ::qkf_free(kDefaultMMgr , field->raw) ;
+    }
+    else if(type == kTypeLIST)
+    {
+        if(field->list != NULL)
+            ::qkf_field_list_free(field->list) ;
+    }
+    else if(type == kTypeMAP)
+    {
+        if(field->map != NULL)
+            ::qkf_field_map_free(field->map) ;
+    }
+
+    field->val = 0 ;
 }
 
 qkf_field_def_t * qkf_field_def_new(const char * name , uint8_t type)
@@ -266,10 +357,34 @@ void qkf_field_list_final(qkf_field_list_t * list)
     if(list == NULL)
         return ;
 
-    qkf_field_data_t * datas = list->datas ;
-    ::memset(list , 0 , sizeof(qkf_field_list_t)) ;
+    qkf_field_data_t * datas = list->datas ;    
     if(datas != NULL)
+    {
+        uint8_t type = list->type ;
+        if(type == kTypeSTR || type == kTypeRAW || type == kTypeLIST || type == kTypeMAP)
+        {
+            uint32_t head = list->head ;
+            uint32_t tail = list->tail ;
+
+            if(head < tail)
+            {
+                for(uint32_t fidx = head ; fidx < tail ; ++fidx)
+                    qkf_field_data_free(type , datas + fidx) ;
+            }
+            else if(head > tail)
+            {
+                for(uint32_t fidx = head ; fidx < list->capacity ; ++fidx)
+                    qkf_field_data_free(type , datas + fidx) ;
+
+                for(uint32_t fidx = 0 ; fidx < tail ; ++fidx)
+                    qkf_field_data_free(type , datas + fidx) ;            
+            }
+        }
+
         ::qkf_free(kDefaultMMgr , datas) ;
+    }
+
+    ::memset(list , 0 , sizeof(qkf_field_list_t)) ;
 }
 
 void qkf_field_list_free(qkf_field_list_t * list)
@@ -332,7 +447,7 @@ bool qkf_field_list_pop(qkf_field_list_t * list , qkf_field_data_t & data)
     return true ;
 }
 
-bool qkf_field_list_copy_data(qkf_field_list_t * list , qkf_field_data_t * datas) 
+bool qkf_field_list_copy_data(const qkf_field_list_t * list , qkf_field_data_t * datas) 
 {
     if(list == NULL || datas == NULL)
         return false ;
@@ -372,7 +487,25 @@ bool qkf_field_list_copy_data(qkf_field_list_t * list , qkf_field_data_t * datas
 
 bool qkf_field_list_copy(const qkf_field_list_t * src , qkf_field_list_t * dst)
 {
-    return false ;
+    if(src == NULL || dst == NULL)
+        return false ;
+
+    qkf_field_list_final(dst) ;
+    ::memset(dst , 0 , sizeof(qkf_field_list_t)) ;
+
+    size_t size = src->capacity * sizeof(qkf_field_data_t) ;
+    qkf_field_data_t * datas = (qkf_field_data_t *)::qkf_malloc(kDefaultMMgr , size) ;
+    ::memset(datas , 0 , size) ;
+
+    qkf_field_list_copy_data(src , datas) ;
+
+    dst->type = src->type ;
+    dst->capacity = src->capacity ;
+    dst->size = src->size ;
+    dst->tail = src->size ;
+    dst->datas = datas ;
+
+    return true ;
 }
 
 bool qkf_field_list_extend(qkf_field_list_t * list)

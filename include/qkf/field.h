@@ -115,27 +115,30 @@ QKFAPI qkf_field_str_t * qkf_field_str_new(const char * str) ;
 QKFAPI qkf_field_raw_t * qkf_field_raw_new(const void * raw , size_t size) ;
 
 //数据接口
-QKFAPI void qkf_field_data_set_bool(qkf_field_data_t * field , bool value) ;
-QKFAPI void qkf_field_data_set_time(qkf_field_data_t * field , time_t value) ;
-QKFAPI void qkf_field_data_set_int8(qkf_field_data_t * field , int8_t value) ;
-QKFAPI void qkf_field_data_set_uint8(qkf_field_data_t * field , uint8_t value) ;
-QKFAPI void qkf_field_data_set_int16(qkf_field_data_t * field , int16_t value) ;
-QKFAPI void qkf_field_data_set_uint16(qkf_field_data_t * field , uint16_t value) ;
-QKFAPI void qkf_field_data_set_int32(qkf_field_data_t * field , int32_t value) ;
-QKFAPI void qkf_field_data_set_uint32(qkf_field_data_t * field , uint32_t value) ;
-QKFAPI void qkf_field_data_set_int64(qkf_field_data_t * field , int64_t value) ;
-QKFAPI void qkf_field_data_set_uint64(qkf_field_data_t * field , uint64_t value) ;
-QKFAPI void qkf_field_data_set_float(qkf_field_data_t * field , float value) ;
-QKFAPI void qkf_field_data_set_double(qkf_field_data_t * field , double value) ;
-QKFAPI void qkf_field_data_set_str(qkf_field_data_t * field , const char * str) ;
-QKFAPI void qkf_field_data_set_raw(qkf_field_data_t * field , const void * raw , size_t size) ;
-QKFAPI void qkf_field_data_set_list(qkf_field_data_t * field , const qkf_field_list_t *list) ;
-QKFAPI void qkf_field_data_set_map(qkf_field_data_t * field , const qkf_field_map_t * map) ;
+QKFAPI bool qkf_field_data_set_bool(qkf_field_data_t * field , bool value) ;
+QKFAPI bool qkf_field_data_set_time(qkf_field_data_t * field , time_t value) ;
+QKFAPI bool qkf_field_data_set_int8(qkf_field_data_t * field , int8_t value) ;
+QKFAPI bool qkf_field_data_set_uint8(qkf_field_data_t * field , uint8_t value) ;
+QKFAPI bool qkf_field_data_set_int16(qkf_field_data_t * field , int16_t value) ;
+QKFAPI bool qkf_field_data_set_uint16(qkf_field_data_t * field , uint16_t value) ;
+QKFAPI bool qkf_field_data_set_int32(qkf_field_data_t * field , int32_t value) ;
+QKFAPI bool qkf_field_data_set_uint32(qkf_field_data_t * field , uint32_t value) ;
+QKFAPI bool qkf_field_data_set_int64(qkf_field_data_t * field , int64_t value) ;
+QKFAPI bool qkf_field_data_set_uint64(qkf_field_data_t * field , uint64_t value) ;
+QKFAPI bool qkf_field_data_set_float(qkf_field_data_t * field , float value) ;
+QKFAPI bool qkf_field_data_set_double(qkf_field_data_t * field , double value) ;
+QKFAPI bool qkf_field_data_set_str(qkf_field_data_t * field , const char * str) ;
+QKFAPI bool qkf_field_data_set_raw(qkf_field_data_t * field , const void * raw , size_t size) ;
+QKFAPI bool qkf_field_data_set_list(qkf_field_data_t * field , const qkf_field_list_t *list) ;
+QKFAPI bool qkf_field_data_set_map(qkf_field_data_t * field , const qkf_field_map_t * map) ;
 
-QKFAPI void qkf_field_data_attach_str(qkf_field_data_t * field , qkf_field_str_t * str) ;
-QKFAPI void qkf_field_data_attach_raw(qkf_field_data_t * field , qkf_field_raw_t * raw) ;
-QKFAPI void qkf_field_data_attach_list(qkf_field_data_t * field , qkf_field_list_t *list) ;
-QKFAPI void qkf_field_data_attach_map(qkf_field_data_t * field , qkf_field_map_t * map) ;
+QKFAPI bool qkf_field_data_attach_str(qkf_field_data_t * field , qkf_field_str_t * str) ;
+QKFAPI bool qkf_field_data_attach_raw(qkf_field_data_t * field , qkf_field_raw_t * raw) ;
+QKFAPI bool qkf_field_data_attach_list(qkf_field_data_t * field , qkf_field_list_t *list) ;
+QKFAPI bool qkf_field_data_attach_map(qkf_field_data_t * field , qkf_field_map_t * map) ;
+
+
+QKFAPI void qkf_field_data_free(uint8_t type , qkf_field_data_t * field) ;
 
 
 QKFAPI qkf_field_def_t * qkf_field_def_new(const char * name , uint8_t type) ;
@@ -155,7 +158,7 @@ QKFAPI bool qkf_field_list_pop(qkf_field_list_t * list , qkf_field_data_t & data
 
 QKFAPI bool qkf_field_list_extend(qkf_field_list_t * list) ;
 QKFAPI bool qkf_field_list_shrink(qkf_field_list_t * list) ;
-QKFAPI bool qkf_field_list_copy_data(qkf_field_list_t * list , qkf_field_data_t * datas) ;
+QKFAPI bool qkf_field_list_copy_data(const qkf_field_list_t * list , qkf_field_data_t * datas) ;
 QKFAPI bool qkf_field_list_copy(const qkf_field_list_t * src , qkf_field_list_t * dst) ;
 
 QKFAPI uint32_t qkf_field_list_extend_size(uint32_t old_size) ;
