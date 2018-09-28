@@ -138,3 +138,106 @@ bool qkf_tuple_header_get(qkf_tuple_header_t * header , int index , qkf_field_de
     def = &node->def ;
     return true ;
 }
+
+int qkf_tuple_header_size(const qkf_tuple_header_t * header) 
+{
+    if(header == NULL)
+        return -1 ;
+    return qkf_vector_size(&header->nodes) ;
+}
+
+qkf_tuple_t * qkf_tuple_new(qkf_tuple_header_t * header)
+{
+    if(header == NULL)
+        return NULL ;
+
+    size_t tuple_size = sizeof(qkf_tuple_t) ;
+    qkf_tuple_t * tuple = (qkf_tuple_t *)::qkf_malloc(kDefaultMMgr , tuple_size) ;
+    if(tuple == NULL)
+        return NULL ;
+    ::memset(tuple , 0 , tuple_size) ;
+    if(qkf_tuple_init(tuple , header) == true)
+        return tuple ;
+    ::qkf_free(kDefaultMMgr , tuple) ;
+    return NULL ;
+}
+
+bool qkf_tuple_init(qkf_tuple_t * tuple , qkf_tuple_header_t * header)
+{
+    if(tuple == NULL || header == NULL)
+        return false ;
+    int field_count = qkf_tuple_header_size(header)  ;
+    if(field_count == 0)
+        return false ;
+
+    int bit_size = (field_count >> 3) + ((field_count & 7) ? 1 : 0) ;
+    size_t bytes = sizeof(qkf_tuple_body_t) - 1 + bit_size ;
+    bytes += sizeof(qkf_field_data_t) * field_count ;
+
+    qkf_tuple_body_t * body = (qkf_tuple_body_t *)::qkf_malloc(kDefaultMMgr , bytes) ;
+    if(body == NULL)
+        return false ;
+
+    body->capacity = bytes ;
+    body->field_count = field_count ;
+
+    tuple->header = header ;
+    tuple->body = body ;
+
+    return true ;
+}
+
+void qkf_tuple_final(qkf_tuple_t * tuple)
+{
+    if(tuple == NULL)
+        return ;
+    qkf_tuple_body_t * body = tuple->body ;
+    if(body == NULL)
+        return ;
+    ::qkf_free(kDefaultMMgr , body) ;
+    tuple->header = NULL ;
+    tuple->body = NULL ;
+}
+
+void qkf_tuple_free(qkf_tuple_t * tuple)
+{
+    if(tuple == NULL)
+        return ;
+    qkf_tuple_final(tuple) ;
+    ::qkf_free(kDefaultMMgr , tuple) ;
+}
+
+void qkf_tuple_clear(qkf_tuple_t * tuple)
+{
+    if(tuple == NULL || tuple->body == NULL)
+        return ;
+
+    ::qkf_free(kDefaultMMgr , tuple->body) ;
+    tuple->body = NULL ;
+}
+
+int qkf_tuple_find(qkf_tuple_t * tuple , const char * name)
+{
+    if(tuple == NULL || tuple->header == NULL)
+        return -1 ;
+
+    return qkf_tuple_header_find(tuple->header , name) ;
+}
+
+bool qkf_tuple_set(qkf_tuple_t * tuple , int index , uint8_t type , qkf_field_data_t * data)
+{
+    if(tuple == NULL || tuple->body == NULL)
+        return false ;
+
+    qkf_tuple_body_t * body = tuple->body ;
+    if(index < 0 || index >= (int)body->field_count)
+        return false ;
+
+    return true ;
+}
+
+bool qkf_tuple_get(qkf_tuple_t * tuple , int index , uint8_t& type , qkf_field_data_t *& data)
+{
+    return false ;
+}
+

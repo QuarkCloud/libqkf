@@ -119,7 +119,7 @@ bool qkf_vector_del(qkf_vector_t * vector , int index)
     return true ;
 }
 
-int qkf_vector_size(qkf_vector_t * vector)
+int qkf_vector_size(const qkf_vector_t * vector)
 {
     if(vector == NULL)
         return 0 ;
@@ -127,7 +127,33 @@ int qkf_vector_size(qkf_vector_t * vector)
         return vector->size ;
 }
 
-uint32_t qkf_vector_extend_size(uint32_t old_size)
+bool qkf_vector_copy(const qkf_vector_t * src , qkf_vector_t * dst) 
+{
+    if(src == NULL || dst == NULL)
+        return false ;
+
+    if(dst->datas != NULL)
+        ::qkf_free(kDefaultMMgr , dst->datas) ;
+    ::memset(dst , 0 , sizeof(qkf_vector_t)) ;
+
+    uint32_t data_size = src->capacity * src->elem_usage ;
+    if(data_size == 0)
+        return true ;
+    uint8_t * bytes = (uint8_t *)::qkf_malloc(kDefaultMMgr , data_size) ;
+    if(bytes == NULL)
+        return false ;
+    ::memset(bytes , 0 , data_size) ;
+    ::memcpy(bytes , src->datas , data_size) ;
+
+    dst->datas = bytes ;
+    dst->capacity = src->capacity ;
+    dst->elem_size = src->elem_size ;
+    dst->elem_usage = src->elem_usage ;
+    dst->size = src->size ;
+    return true ;
+}
+
+uint32_t qkf_vector_calc_extend_size(uint32_t old_size)
 {
     uint32_t capacity = old_size ;
     if(capacity == 0)
@@ -144,7 +170,7 @@ bool qkf_vector_extend(qkf_vector_t * vector)
     if(vector == NULL)
         return false ;
 
-    uint32_t capacity = qkf_vector_extend_size(vector->capacity) ;
+    uint32_t capacity = qkf_vector_calc_extend_size(vector->capacity) ;
 
     size_t ext_size = capacity * vector->elem_usage ;
     uint8_t * datas = (uint8_t *)::qkf_malloc(kDefaultMMgr , ext_size) ;
@@ -165,7 +191,7 @@ bool qkf_vector_extend(qkf_vector_t * vector)
     return true ;
 }
 
-uint32_t qkf_vector_shrink_size(uint32_t capacity , uint32_t size)
+uint32_t qkf_vector_calc_shrink_size(uint32_t capacity , uint32_t size)
 {
     uint32_t newcap = 0 ;
     if(capacity >= 4096)
@@ -197,7 +223,7 @@ bool qkf_vector_shrink(qkf_vector_t * vector)
     if(vector->datas == NULL || vector->capacity == 0)
         return true ;
 
-    uint32_t newcap = qkf_vector_shrink_size(vector->capacity , vector->size) ;
+    uint32_t newcap = qkf_vector_calc_shrink_size(vector->capacity , vector->size) ;
     if(newcap == 0)
         return false ;
 

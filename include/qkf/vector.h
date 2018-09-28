@@ -27,13 +27,14 @@ QKFAPI void *qkf_vector_get(qkf_vector_t * vector , int index) ;
 QKFAPI bool qkf_vector_set(qkf_vector_t * vector , int index , void * data) ;
 QKFAPI int qkf_vector_add(qkf_vector_t * vector , void * data) ;
 QKFAPI bool qkf_vector_del(qkf_vector_t * vector , int index) ;
-QKFAPI int qkf_vector_size(qkf_vector_t * vector) ;
+QKFAPI int qkf_vector_size(const qkf_vector_t * vector) ;
+QKFAPI bool qkf_vector_copy(const qkf_vector_t * src , qkf_vector_t * dst) ;
 
 QKFAPI bool qkf_vector_extend(qkf_vector_t * vector) ;
 QKFAPI bool qkf_vector_shrink(qkf_vector_t * vector) ;
 
-QKFAPI uint32_t qkf_vector_extend_size(uint32_t old_size) ;
-QKFAPI uint32_t qkf_vector_shrink_size(uint32_t capacity , uint32_t size) ;
+QKFAPI uint32_t qkf_vector_calc_extend_size(uint32_t old_size) ;
+QKFAPI uint32_t qkf_vector_calc_shrink_size(uint32_t capacity , uint32_t size) ;
 
 
 __END_DECLS

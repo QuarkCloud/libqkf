@@ -236,6 +236,134 @@ bool qkf_field_data_attach_map(qkf_field_data_t * field , qkf_field_map_t * map)
     return true ;
 }
 
+bool qkf_field_data_get_bool(qkf_field_data_t * field , bool& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->bv ;
+    return true ;
+}
+
+bool qkf_field_data_get_time(qkf_field_data_t * field , time_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->ts ;
+    return true ;
+}
+
+bool qkf_field_data_get_int8(qkf_field_data_t * field , int8_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->i8 ;
+    return true ;
+}
+
+bool qkf_field_data_get_uint8(qkf_field_data_t * field , uint8_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->u8 ;
+    return true ;
+}
+
+bool qkf_field_data_get_int16(qkf_field_data_t * field , int16_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->i16 ;
+    return true ;
+}
+
+bool qkf_field_data_get_uint16(qkf_field_data_t * field , uint16_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->u16 ;
+    return true ;
+}
+
+bool qkf_field_data_get_int32(qkf_field_data_t * field , int32_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->i32 ;
+    return true ;
+}
+
+bool qkf_field_data_get_uint32(qkf_field_data_t * field , uint32_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->u32 ;
+    return true ;
+}
+
+bool qkf_field_data_get_int64(qkf_field_data_t * field , int64_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->i64 ;
+    return true ;
+}
+
+bool qkf_field_data_get_uint64(qkf_field_data_t * field , uint64_t& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->u64 ;
+    return true ;
+}
+
+bool qkf_field_data_get_float(qkf_field_data_t * field , float& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->f32 ;
+    return true ;
+}
+
+bool qkf_field_data_get_double(qkf_field_data_t * field , double& value)
+{
+    if(field == NULL)
+        return false ;
+    value = field->f64 ;
+    return true ;
+}
+
+bool qkf_field_data_get_str(qkf_field_data_t * field , qkf_field_str_t *& str)
+{
+    if(field == NULL)
+        return false ;
+    str = field->str ;
+    return true ;
+}
+
+bool qkf_field_data_get_raw(qkf_field_data_t * field , qkf_field_raw_t *& raw)
+{
+    if(field == NULL)
+        return false ;
+    raw = field->raw ;
+    return true ;
+}
+
+bool qkf_field_data_get_list(qkf_field_data_t * field , qkf_field_list_t *&list)
+{
+    if(field == NULL)
+        return false ;
+    list = field->list ;
+    return true ;
+}
+
+bool qkf_field_data_get_map(qkf_field_data_t * field , qkf_field_map_t *& map)
+{
+    if(field == NULL)
+        return false;
+    map = field->map ;
+    return true ;
+}
+
 void qkf_field_data_free(uint8_t type , qkf_field_data_t * field)
 {
     if(type <= kTypeMIN || type > kTypeMAX || field == NULL)
@@ -263,6 +391,46 @@ void qkf_field_data_free(uint8_t type , qkf_field_data_t * field)
     }
 
     field->val = 0 ;
+}
+
+bool qkf_field_data_copy(uint8_t type , const qkf_field_data_t * src , qkf_field_data_t * dst) 
+{
+    if(type == kTypeVOID || src == NULL || dst == NULL)
+        return false ;
+
+    dst->val = 0 ;
+    if(type == kTypeSTR)
+    {
+        if(src->str != NULL)
+            dst->str = ::qkf_field_str_new(src->str->data) ;
+    }
+    else if(type == kTypeRAW)
+    {
+        if(src->raw != NULL)
+            dst->raw = ::qkf_field_raw_new(src->raw->data , src->raw->size) ;
+    }
+    else if(type == kTypeLIST)
+    {
+        if(src->list != NULL)
+        {
+            dst->list = ::qkf_field_list_new(src->list->type , 0) ;
+            return qkf_field_list_copy(src->list , dst->list) ;
+        }
+    }
+    else if(type == kTypeMAP)
+    {
+        if(src->map != NULL)
+        {
+            dst->map = ::qkf_field_map_new() ;
+            return ::qkf_field_map_copy(src->map , dst->map) ;
+        }
+    }
+    else
+    {
+        dst->val = src->val ;
+    }
+
+    return true ;
 }
 
 qkf_field_def_t * qkf_field_def_new(const char * name , uint8_t type)
@@ -331,16 +499,19 @@ qkf_field_list_t * qkf_field_list_new(uint8_t type , int capacity)
 
 bool qkf_field_list_init(qkf_field_list_t * list , uint8_t type , int capacity)
 {
-    if(list == NULL || capacity <= 0)
+    if(list == NULL || capacity < 0)
         return false;
-
     ::memset(list , 0 , sizeof(qkf_field_list_t)) ;
 
+    qkf_field_data_t * datas = NULL ;
     size_t data_size = sizeof(qkf_field_data_t) * capacity ;
-    qkf_field_data_t * datas = (qkf_field_data_t *)::qkf_malloc(kDefaultMMgr , data_size) ;
-    if(datas == NULL)
-        return false ;
-    ::memset(datas , 0 , data_size) ;
+    if(data_size != 0)
+    {
+        datas = (qkf_field_data_t *)::qkf_malloc(kDefaultMMgr , data_size) ;
+        if(datas == NULL)
+            return false ;
+        ::memset(datas , 0 , data_size) ;
+    }
 
     qkf_field_data_t * old_datas = list->datas ;
     list->datas = datas ;
@@ -446,7 +617,10 @@ bool qkf_field_list_pop(qkf_field_list_t * list , qkf_field_data_t & data)
     qkf_field_list_shrink(list) ;
     return true ;
 }
-
+/**
+    需要注意的是，copy_data只拷贝数组，没有检查数组的中值。
+    如果该数组元素是指针类型，指针指向的内容没有被拷贝。
+*/
 bool qkf_field_list_copy_data(const qkf_field_list_t * list , qkf_field_data_t * datas) 
 {
     if(list == NULL || datas == NULL)
@@ -493,11 +667,80 @@ bool qkf_field_list_copy(const qkf_field_list_t * src , qkf_field_list_t * dst)
     qkf_field_list_final(dst) ;
     ::memset(dst , 0 , sizeof(qkf_field_list_t)) ;
 
-    size_t size = src->capacity * sizeof(qkf_field_data_t) ;
-    qkf_field_data_t * datas = (qkf_field_data_t *)::qkf_malloc(kDefaultMMgr , size) ;
-    ::memset(datas , 0 , size) ;
-
+    size_t bytes = src->capacity * sizeof(qkf_field_data_t) ;
+    qkf_field_data_t * datas = (qkf_field_data_t *)::qkf_malloc(kDefaultMMgr , bytes) ;
+    if(datas == NULL)
+        return false ;
+    ::memset(datas , 0 , bytes) ;
     qkf_field_list_copy_data(src , datas) ;
+    //继续拷贝内容
+    uint8_t type = src->type ;
+    uint32_t size = src->size ;
+    if(type == kTypeSTR)
+    {
+        for(uint32_t idx = 0 ; idx < size ; ++idx)
+        {
+            qkf_field_data_t * data = datas + idx ;
+            if(data->str == NULL)
+                continue ;
+            qkf_field_str_t * str = qkf_field_str_new(data->str->data) ;
+            data->str = str ;                 
+        }
+    }
+    else if(type == kTypeRAW)
+    {    
+        for(uint32_t idx = 0 ; idx < size ; ++idx)
+        {
+            qkf_field_data_t * data = datas + idx ;
+            if(data->raw == NULL)
+                continue ;
+            qkf_field_raw_t * raw = qkf_field_raw_new(data->raw->data , data->raw->size) ;
+            data->raw = raw ;
+        }
+    }
+    else if(type == kTypeLIST)
+    {
+        for(uint32_t idx = 0 ; idx < size ; ++idx)
+        {
+            qkf_field_data_t * data = datas + idx ;
+            if(data->list == NULL)
+                continue ;
+            qkf_field_list_t * old_list = data->list ;
+            data->list = NULL ;
+
+            qkf_field_list_t * new_list = qkf_field_list_new(old_list->type , old_list->capacity) ;
+            if(new_list == NULL)
+                continue ;
+            if(qkf_field_list_copy(data->list , new_list) == false)
+            {
+                qkf_field_list_free(new_list) ;
+                continue ;
+            }
+
+            data->list = new_list ;
+        }
+    }
+    else if(type == kTypeMAP)
+    {
+        for(uint32_t idx = 0 ; idx < size ; ++idx)
+        {
+            qkf_field_data_t * data = datas + idx ;
+            if(data->map == NULL)
+                continue ;
+            qkf_field_map_t * old_map = data->map ;
+            data->map = NULL ;
+
+            qkf_field_map_t * new_map = qkf_field_map_new() ;
+            if(new_map == NULL)
+                continue ;
+            if(qkf_field_map_copy(data->map , new_map) == false)
+            {
+                qkf_field_map_free(new_map) ;
+                continue ;
+            }
+            data->map = new_map ;
+        }
+    }
 
     dst->type = src->type ;
     dst->capacity = src->capacity ;
@@ -513,7 +756,7 @@ bool qkf_field_list_extend(qkf_field_list_t * list)
     if(list == NULL)
         return false ;
 
-    uint32_t capacity = qkf_vector_extend_size(list->capacity) ;
+    uint32_t capacity = qkf_vector_calc_extend_size(list->capacity) ;
     size_t data_size = sizeof(qkf_field_data_t) * capacity ;
     qkf_field_data_t * datas = (qkf_field_data_t *)::qkf_malloc(kDefaultMMgr , data_size) ;
     if(datas == NULL)
@@ -546,7 +789,7 @@ bool qkf_field_list_shrink(qkf_field_list_t * list)
     if(list->datas == NULL || list->capacity == 0)
         return true ;
 
-    uint32_t newcap = qkf_vector_shrink_size(list->capacity , list->size) ;
+    uint32_t newcap = qkf_vector_calc_shrink_size(list->capacity , list->size) ;
     if(newcap == 0)
         return false ;
 
@@ -668,8 +911,10 @@ void qkf_field_map_node_final(qkf_field_map_node_t * node)
     }
 
     uint8_t type = node->def.type ;
-    if(type == kTypeSTR || type == kTypeRAW)
+    if(type == kTypeSTR)
         ::qkf_free(kDefaultMMgr , node->data.str) ;
+    else if(type == kTypeRAW)
+        ::qkf_free(kDefaultMMgr , node->data.raw) ;
     else if(type == kTypeLIST)
         qkf_field_list_free(node->data.list) ;
     else if(type == kTypeMAP)
@@ -683,7 +928,6 @@ int qkf_field_map_add(qkf_field_map_t * map , const char * name , uint8_t type ,
     if(map == NULL || name == NULL || type < kTypeMIN || type > kTypeMAX || data == NULL)
         return -1 ;
 
-    //qkf_field_map_node_t * node = NULL ;
     int index = -1 ;
     if((index = qkf_field_map_find(map , name)) < 0)
         return -1 ;
@@ -780,5 +1024,47 @@ int qkf_field_map_find(qkf_field_map_t * map , const char * name)
 
 bool qkf_field_map_copy(const qkf_field_map_t * src , qkf_field_map_t * dst) 
 {
-    return false ;
+    if(src == NULL || dst == NULL)
+        return false ;
+    qkf_field_map_final(dst) ;
+
+    dst->names.root = NULL ;
+    dst->names.key_compare = qkf_field_map_node_compare ;
+    if(qkf_vector_init(&dst->nodes , sizeof(qkf_field_map_node_t) , src->nodes.capacity) == false)
+        return false ;
+
+    int size = ::qkf_vector_size(&src->nodes) ;
+    for(int idx = 0 ; idx < size ; ++idx)
+    {
+        qkf_field_map_node_t * snode = (qkf_field_map_node_t *)::qkf_vector_get((qkf_vector_t *)&src->nodes , idx) ;
+        qkf_field_map_node_t * dnode = (qkf_field_map_node_t *)::qkf_vector_get((qkf_vector_t *)&dst->nodes , idx) ;
+
+        dnode->def.type = snode->def.type ;
+        dnode->def.index = idx ;
+        dnode->def.offset = sizeof(qkf_field_data_t) * idx ;
+        if(snode->def.name != NULL)
+            dnode->def.name = ::qkf_strdup(snode->def.name , 0) ;
+
+        dnode->data.val = 0 ;
+        qkf_field_data_t * sdata = &snode->data ;
+        uint8_t type = snode->def.type ;
+        if(type == kTypeSTR)
+            dnode->data.str = ::qkf_field_str_new(sdata->str->data) ;
+        else if(type == kTypeRAW)
+            dnode->data.raw = ::qkf_field_raw_new(sdata->raw->data , sdata->raw->size) ;
+        else if(type == kTypeLIST)
+        {
+            qkf_field_list_t * src_list = sdata->list ;
+            if(src_list != NULL)
+            {
+                dnode->data.list = ::qkf_field_list_new(src_list->type , src_list->capacity) ;
+                if(dnode->data.list != NULL)
+                    qkf_field_list_copy(src_list , dnode->data.list) ;
+            }
+        }
+
+        rb_insert(&dst->names , &dnode->link) ;
+    }
+
+    return true ;
 }

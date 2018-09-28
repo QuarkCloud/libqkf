@@ -56,6 +56,7 @@ QKFAPI int qkf_tuple_header_add(qkf_tuple_header_t * header , const char * name 
 QKFAPI bool qkf_tuple_header_del(qkf_tuple_header_t * header , const char * name) ;
 QKFAPI int qkf_tuple_header_find(qkf_tuple_header_t * header , const char * name) ;
 QKFAPI bool qkf_tuple_header_get(qkf_tuple_header_t * header , int index , qkf_field_def_t*& def) ;
+QKFAPI int qkf_tuple_header_size(const qkf_tuple_header_t * header) ;
 
 QKFAPI qkf_tuple_t * qkf_tuple_new(qkf_tuple_header_t * header) ;
 QKFAPI bool qkf_tuple_init(qkf_tuple_t * tuple , qkf_tuple_header_t * header) ;
@@ -66,23 +67,6 @@ QKFAPI void qkf_tuple_clear(qkf_tuple_t * tuple) ;
 QKFAPI int qkf_tuple_find(qkf_tuple_t * tuple , const char * name) ;
 QKFAPI bool qkf_tuple_set(qkf_tuple_t * tuple , int index , uint8_t type , qkf_field_data_t * data) ;
 QKFAPI bool qkf_tuple_get(qkf_tuple_t * tuple , int index , uint8_t& type , qkf_field_data_t *& data) ;
-
-QKFAPI bool qkf_tuple_set_bool(qkf_tuple_t * tuple , int index , bool value) ;
-QKFAPI bool qkf_tuple_set_time(qkf_tuple_t * tuple , int index , time_t value) ;
-QKFAPI bool qkf_tuple_set_int8(qkf_tuple_t * tuple , int index , int8_t value) ;
-QKFAPI bool qkf_tuple_set_uint8(qkf_tuple_t * tuple , int index , uint8_t value) ;
-QKFAPI bool qkf_tuple_set_int16(qkf_tuple_t * tuple , int index , int16_t value) ;
-QKFAPI bool qkf_tuple_set_uint16(qkf_tuple_t * tuple , int index , uint16_t value) ;
-QKFAPI bool qkf_tuple_set_int32(qkf_tuple_t * tuple , int index , int32_t value) ;
-QKFAPI bool qkf_tuple_set_uint32(qkf_tuple_t * tuple , int index , uint32_t value) ;
-QKFAPI bool qkf_tuple_set_int64(qkf_tuple_t * tuple , int index , int64_t value) ;
-QKFAPI bool qkf_tuple_set_uint64(qkf_tuple_t * tuple , int index , uint64_t value) ;
-QKFAPI bool qkf_tuple_set_float(qkf_tuple_t * tuple , int index , float value) ;
-QKFAPI bool qkf_tuple_set_double(qkf_tuple_t * tuple , int index , double value) ;
-QKFAPI bool qkf_tuple_set_str(qkf_tuple_t * tuple , int index , const char * str) ;
-QKFAPI bool qkf_tuple_set_raw(qkf_tuple_t * tuple , int index , const void * data , size_t size) ;
-QKFAPI bool qkf_tuple_set_list(qkf_tuple_t * tuple , int index , qkf_field_list_t *list) ;
-QKFAPI bool qkf_tuple_set_map(qkf_tuple_t * tuple , int index , qkf_field_map_t * map) ;
 
 
 __END_DECLS
