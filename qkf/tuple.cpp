@@ -1,6 +1,7 @@
 
 #include "qkf/tuple.h"
 #include "qkf/malloc.h"
+#include "qkf/tytils.h"
 #include <string.h>
 
 qkf_tuple_header_t * qkf_tuple_header_new()
@@ -191,10 +192,7 @@ void qkf_tuple_final(qkf_tuple_t * tuple)
 {
     if(tuple == NULL)
         return ;
-    qkf_tuple_body_t * body = tuple->body ;
-    if(body == NULL)
-        return ;
-    ::qkf_free(kDefaultMMgr , body) ;
+    qkf_tuple_clear(tuple) ;
     tuple->header = NULL ;
     tuple->body = NULL ;
 }
@@ -209,8 +207,44 @@ void qkf_tuple_free(qkf_tuple_t * tuple)
 
 void qkf_tuple_clear(qkf_tuple_t * tuple)
 {
-    if(tuple == NULL || tuple->body == NULL)
+    if(tuple == NULL || tuple->header == NULL || tuple->body == NULL)
         return ;
+
+    qkf_tuple_header_t * header = tuple->header ;
+    qkf_tuple_body_t * body = tuple->body ;
+
+    uint8_t * bits = (uint8_t *)(&body->bits) ;
+
+    uint32_t capacity = body->capacity ;
+    uint32_t field_count = body->field_count ;
+    int bit_size = (field_count >> 6) + (field_count & 63)?1:0 ;
+    qkf_field_data_t * datas = (qkf_field_data_t *)(&body->bits + bit_size) ;
+
+    for(uint32_t fidx = 0 ; fidx < field_count ; ++fidx)
+    {
+        int bytes = fidx >> 3 ;
+        int mask = fidx & 7 ;
+
+        if(::qkf_get_bitmap(bits[bytes] , mask) == false)
+            continue ;
+
+        qkf_field_def_t * def = NULL ;
+        if(::qkf_tuple_header_get(header , fidx , def) == false || def == NULL)
+            continue ;
+
+        uint8_t type = def->type ;
+        if(type == kTypeSTR || type == kTypeRAW || type == kTypeLIST || type == kTypeMAP)
+        {
+            qkf_field_data_t * data = datas + fidx ;
+            uint64_t val = data->val ;
+
+            if(val < (uint64_t)body || val > (uint64_t)body + capacity)
+            {
+                //区间外地址
+                qkf_field_data_free(type , data) ;
+            }
+        }        
+    }    
 
     ::qkf_free(kDefaultMMgr , tuple->body) ;
     tuple->body = NULL ;
@@ -230,14 +264,57 @@ bool qkf_tuple_set(qkf_tuple_t * tuple , int index , uint8_t type , qkf_field_da
         return false ;
 
     qkf_tuple_body_t * body = tuple->body ;
-    if(index < 0 || index >= (int)body->field_count)
+    uint32_t field_count =  body->field_count ;
+    if(index < 0 || index >= (int)field_count)
         return false ;
 
+    qkf_field_def_t * def = NULL ;
+    if(qkf_tuple_header_get(tuple->header , index , def) == false || def == NULL)
+        return false ;
+
+    if(def->type != type)
+        return false ;
+
+    uint32_t bit_size = (field_count >> 6) + (field_count & 63) ? 1 : 0 ;
+    qkf_field_data_t * datas = (qkf_field_data_t *)(&body->bits + bit_size) ;
+    datas[index].val = data->val ;
+
+    uint8_t * bits = (uint8_t *)&body->bits ;
+    int bytes = index >> 3 ;
+    int mask = index & 7 ;
+
+    qkf_set_bitmap(bits[bytes] , mask , true) ;
     return true ;
 }
 
 bool qkf_tuple_get(qkf_tuple_t * tuple , int index , uint8_t& type , qkf_field_data_t *& data)
 {
-    return false ;
+    if(tuple == NULL || tuple->body == NULL || tuple->header == NULL)
+        return false ;
+
+    qkf_tuple_body_t * body = tuple->body ;
+    uint32_t field_count = body->field_count ;
+    if(field_count == 0)
+        return false ;
+
+    uint8_t * bits = (uint8_t *)&body->bits ;
+    int bytes = index >> 3 ;
+    int mask = index & 7 ;
+
+    if(qkf_get_bitmap(bits[bytes] , mask) == false)
+        return false ;
+
+    qkf_field_def_t * def = NULL ;
+    if(qkf_tuple_header_get(tuple->header , index , def) == false)
+        return false ;
+
+    type = def->type ;
+
+    uint32_t bit_size = (field_count >> 6) + (field_count & 63) ? 1 : 0 ;
+    qkf_field_data_t * datas = (qkf_field_data_t *)(bits + bit_size) ;
+
+
+    data = datas + index ;
+    return true ;
 }
 

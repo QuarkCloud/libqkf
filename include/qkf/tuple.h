@@ -14,7 +14,7 @@ __BEGIN_DECLS
 	tuple被设计为field的容器，它只适用于固定定义，如类。它有三个区构成，
     1、是定义区，包括字段名称和类型，以及每个字段的偏移量。
     2、位图区，指示字段对应的位图是否存在数据
-    3、数据区，由连续的内存构成
+    3、数据区，由连续的内存构成。需要注意的是，如果是指针类型，但没有落在数据区，释放。
 */
 typedef struct __st_qkf_tuple_header_node   qkf_tuple_header_node_t ;
 typedef struct __st_qkf_tuple_header        qkf_tuple_header_t ;
