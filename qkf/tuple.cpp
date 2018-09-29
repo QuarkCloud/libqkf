@@ -147,6 +147,25 @@ int qkf_tuple_header_size(const qkf_tuple_header_t * header)
     return qkf_vector_size(&header->nodes) ;
 }
 
+bool qkf_tuple_header_copy(const qkf_tuple_header_t * src , qkf_tuple_header_t * dst) 
+{
+    if(src == NULL || dst == NULL)
+        return false ;
+
+    qkf_tuple_header_final(dst) ;
+    ::memset(dst , 0 , sizeof(qkf_tuple_header_t)) ;
+
+    qkf_vector_init(&dst->nodes , sizeof(qkf_tuple_header_node_t) , src->nodes.capacity) ;
+
+    int size = qkf_vector_size(&src->nodes) ;
+    for(int fidx = 0 ; fidx < size ; ++fidx)
+    {
+    
+    }
+
+    return true ;
+}
+
 qkf_tuple_t * qkf_tuple_new(qkf_tuple_header_t * header)
 {
     if(header == NULL)

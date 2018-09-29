@@ -211,6 +211,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\table.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\time.cpp"
 				>
 			</File>
@@ -270,6 +274,10 @@
 			</File>
 			<File
 				RelativePath="..\include\qkf\sync.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\qkf\table.h"
 				>
 			</File>
 			<File

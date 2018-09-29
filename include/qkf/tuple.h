@@ -57,6 +57,7 @@ QKFAPI bool qkf_tuple_header_del(qkf_tuple_header_t * header , const char * name
 QKFAPI int qkf_tuple_header_find(qkf_tuple_header_t * header , const char * name) ;
 QKFAPI bool qkf_tuple_header_get(qkf_tuple_header_t * header , int index , qkf_field_def_t*& def) ;
 QKFAPI int qkf_tuple_header_size(const qkf_tuple_header_t * header) ;
+QKFAPI bool qkf_tuple_header_copy(const qkf_tuple_header_t * src , qkf_tuple_header_t * dst) ;
 
 QKFAPI qkf_tuple_t * qkf_tuple_new(qkf_tuple_header_t * header) ;
 QKFAPI bool qkf_tuple_init(qkf_tuple_t * tuple , qkf_tuple_header_t * header) ;
