@@ -19,7 +19,7 @@ typedef struct __st_qkf_cursor      qkf_cursor_t ;
 
 struct __st_qkf_table{
     qkf_table_header_t          header ;
-    qkf_vector_t                tuples ;
+    qkf_vector_t                datas ;
 } ;
 
 struct __st_qkf_cursor{
