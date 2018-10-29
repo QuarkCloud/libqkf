@@ -55,7 +55,7 @@ int qkf_int32_precision(int32_t val)
     return 0 ;
 }
 
-static const int kInt64PreMax = 19 ;
+static const int kInt64PreMax = 18 ;
 static const int64_t __qkf_int64_pre_max__[kInt64PreMax] = {
     10 , 
     100 , 
@@ -74,8 +74,7 @@ static const int64_t __qkf_int64_pre_max__[kInt64PreMax] = {
     1000000000000000 ,
     10000000000000000 ,
     100000000000000000 ,
-    1000000000000000000 ,
-    10000000000000000000
+    1000000000000000000
 } ;
 
 int qkf_int64_precision(int64_t val)
